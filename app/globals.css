@@ -1,26 +1,160 @@
 @import "tailwindcss";
 
+/* =======================
+   BRAND VARIABLES
+======================= */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  --charcoal: #1C1C1C;
+  --steel: #6F747A;
+  --silver: #BFC3C7;
+  --walnut: #7A4A2E;
+  --amber: #D48C3A;
+
+  --bg-main: var(--charcoal);
+  --text-primary: var(--silver);
+  --text-secondary: var(--steel);
+  --icon-color: var(--silver);
+
+  --btn-accent: var(--amber);
+  --btn-accent-hover: #c57f33;
+
+  --product-highlight: var(--walnut);
+  --border-muted: var(--steel);
+
+  /* Ant Design theme hooks */
+  --ant-primary-color: var(--btn-accent);
+  --ant-primary-color-hover: var(--btn-accent-hover);
+  --ant-color-primary: var(--btn-accent);
+  --ant-color-primary-hover: var(--btn-accent-hover);
+  --ant-border-color: var(--border-muted);
+  --ant-text-color: var(--text-primary);
+  --ant-text-color-secondary: var(--text-secondary);
+  --ant-bg-container: var(--bg-main);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* =======================
+   GLOBAL PAGE STYLES
+======================= */
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-main);
+  color: var(--text-primary);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.icon {
+  color: var(--icon-color);
+}
+
+/* =======================
+   ANT DESIGN OVERRIDES
+   (Buttons, Inputs, Cards, etc.)
+======================= */
+
+/* ALL buttons */
+.ant-btn {
+  background-color: transparent !important;
+  border-color: var(--border-muted) !important;
+  color: var(--text-primary) !important;
+  box-shadow: none !important;
+}
+
+/* Default buttons */
+.ant-btn:hover,
+.ant-btn:focus-visible {
+  border-color: var(--btn-accent) !important;
+  color: var(--btn-accent) !important;
+  box-shadow: none !important;
+}
+
+/* Primary buttons */
+.ant-btn-primary {
+  background-color: var(--btn-accent) !important;
+  border-color: var(--btn-accent) !important;
+  color: var(--charcoal) !important;
+  box-shadow: none !important;
+  font-weight: 600;
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus-visible {
+  background-color: var(--btn-accent-hover) !important;
+  border-color: var(--btn-accent-hover) !important;
+  color: var(--charcoal) !important;
+  box-shadow: none !important;
+}
+
+/* Default Buttons */
+.ant-btn-default {
+  background-color: transparent !important;
+  border-color: var(--border-muted) !important;
+  color: var(--text-primary) !important;
+}
+
+.ant-btn-default:hover {
+  border-color: var(--btn-accent) !important;
+  color: var(--btn-accent) !important;
+}
+
+/* Disabled Buttons */
+.ant-btn:disabled,
+.ant-btn-disabled {
+  background-color: var(--border-muted) !important;
+  border-color: var(--border-muted) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Inputs */
+.ant-input,
+.ant-input-affix-wrapper {
+  background-color: #141414 !important;
+  border-color: var(--border-muted) !important;
+  color: var(--text-primary) !important;
+}
+
+.ant-input::placeholder {
+  color: var(--text-secondary) !important;
+}
+
+.ant-input:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: var(--btn-accent) !important;
+  box-shadow: 0 0 0 2px rgba(212, 140, 58, 0.25) !important;
+}
+
+/* Cards */
+.ant-card {
+  background-color: #141414 !important;
+  border-color: var(--border-muted) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Modals */
+.ant-modal-content {
+  background-color: #141414 !important;
+  color: var(--text-primary) !important;
+}
+
+/* Dropdowns / Menus */
+.ant-dropdown-menu {
+  background-color: #141414 !important;
+}
+
+.ant-dropdown-menu-item {
+  color: var(--text-primary) !important;
+}
+
+.ant-dropdown-menu-item:hover {
+  background-color: rgba(212, 140, 58, 0.15) !important;
+}
+
+/* Links */
+.ant-typography a {
+  color: var(--btn-accent) !important;
+}
+
+.ant-typography a:hover {
+  color: var(--btn-accent-hover) !important;
 }
