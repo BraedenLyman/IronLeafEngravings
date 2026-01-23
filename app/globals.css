@@ -50,7 +50,6 @@ body {
 
 /* =======================
    ANT DESIGN OVERRIDES
-   (Buttons, Inputs, Cards, etc.)
 ======================= */
 
 /* ALL buttons */
@@ -157,4 +156,38 @@ body {
 
 .ant-typography a:hover {
   color: var(--btn-accent-hover) !important;
+}
+
+/* =======================
+   RESPONSIVE HELPERS
+======================= */
+img,
+.logo img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.heroImage {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Utility container spacing for small screens */
+.container,
+.mainHeader,
+.nav {
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  
+  body {
+    font-size: 15px;
+  }
+
+  .ant-btn {
+    padding: 6px 10px !important;
+  }
 }

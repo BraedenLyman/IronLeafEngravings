@@ -6,8 +6,9 @@ export default function Hero() {
         <Image 
             src="/hero/IronLeafHero.png"
             alt="IronLeaf Hero Image - Home Page"
-            width={560}
-            height={180}
+            width={1200}
+            height={400}
+            className="heroImage"
           />
     </div>
   )

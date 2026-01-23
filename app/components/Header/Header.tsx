@@ -9,12 +9,6 @@ export default function Header() {
   return (
     <div className={styles.container}>
       <div className={styles.mainHeader}>
-          {/* Left side header */}
-          <div className={styles.leftHead}>
-
-          </div>
-
-          {/* Center header - Logo */}
           <Image 
             className={styles.logo}
             src="/logo/IronLeafLogo.png"
@@ -22,10 +16,6 @@ export default function Header() {
             width={560}
             height={180}
           />
-          
-          {/* Right side header */}
-          <div className={styles.rightHead}>
-          </div>
       </div>
 
       {/* Nav links */}
