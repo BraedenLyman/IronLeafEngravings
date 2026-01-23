@@ -1,3 +1,5 @@
+"use client";
+
 import { HiShoppingCart } from "react-icons/hi";
 
 export default function CartButton({ count = 0 }) {
