@@ -4,6 +4,9 @@ import { useMemo, useState } from "react";
 import styles from "./product-page.module.css";
 import QuantityPicker from "../../components/quantity-picker/quantity-picker";
 import { useCart } from "../../components/cart/CartContext";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "@/app/lib/firebaseClient";
+
 
 type Product = {
   slug: string;
@@ -49,60 +52,37 @@ export default function ProductCustomizer({ product }: { product: Product }) {
       imagePreviewUrl: previewUrl,
       uploadedFileName: file.name,
     });
-  };
-
-  const handleBuyNow = async () => {
-  console.log("Buy Now clicked");
-  if (!file) {
-    alert("Please upload an image first.");
-    return;
-  }
-
-  try {
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: [
-          {
-            name: product.title,
-            priceInCents: product.priceCents,
-            quantity: qty,
-          },
-        ],
-      }),
-    });
-
-    const text = await res.text();
-    console.log("Checkout status:", res.status);
-    console.log("Checkout raw response:", text);
-
-    let data: any;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      alert("Checkout failed: API did not return JSON. Check console.");
-      return;
-    }
-
-    if (!res.ok) {
-      alert(data?.error ?? "Checkout failed");
-      return;
-    }
-
-    if (!data?.url) {
-      alert("Checkout failed: No URL returned.");
-      return;
-    }
-
-    window.location.href = data.url;
-  } catch (e: any) {
-    console.error(e);
-    alert(e?.message ?? "Checkout error");
-  }
 };
 
+const handleBuyNow = async () => {
+  if (!file) return;
 
+  const uploadPath = `uploads/${product.slug}/${crypto.randomUUID()}-${file.name}`;
+  const fileRef = ref(storage, uploadPath);
+
+  await uploadBytes(fileRef, file);
+  const imageUrl = await getDownloadURL(fileRef);
+
+  const res = await fetch("/api/checkout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      items: [
+        {
+          name: product.title,
+          priceInCents: product.priceCents,
+          quantity: qty,
+        },
+      ],
+      imageUrl,
+      uploadedFileName: file.name,
+      productSlug: product.slug,
+    }),
+  });
+
+  const data = await res.json();
+  window.location.href = data.url;
+};
 
   return (
     <div className={styles.customizer}>
