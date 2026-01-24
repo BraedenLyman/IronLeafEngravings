@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { CartProvider } from "./components/cart/CartContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,23 +16,23 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Iron Leaf Engravings",
   description: "",
+  icons: {
+    icon: "/favicon/IronLeafFav.ico",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon/IronLeafFav.ico" />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   );

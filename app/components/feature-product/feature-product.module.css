@@ -1,0 +1,135 @@
+.section {
+  padding: 64px 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 22px;
+  align-items: center;
+  border-radius: 20px;
+  border: 1px solid var(--border-muted);
+  background: radial-gradient(
+      800px circle at 10% 20%,
+      rgba(212, 140, 58, 0.14),
+      transparent 55%
+    ),
+    #141414;
+  padding: 22px;
+}
+
+@media (max-width: 900px) {
+  .card {
+    grid-template-columns: 1fr;
+  }
+}
+
+.copy {
+  padding: 6px;
+}
+
+.kicker {
+  display: inline-flex;
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(111, 116, 122, 0.45);
+  background: rgba(20, 20, 20, 0.55);
+  color: var(--silver);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.title {
+  margin: 12px 0 8px;
+  color: var(--text-primary);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: clamp(26px, 3vw, 34px);
+}
+
+.desc {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 60ch;
+}
+
+.ctas {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.linkReset {
+  text-decoration: none;
+}
+
+.primary {
+  background-color: var(--btn-accent) !important;
+  border-color: var(--btn-accent) !important;
+  color: var(--charcoal) !important;
+  font-weight: 800;
+  border-radius: 12px;
+  height: 44px;
+  padding: 0 16px;
+}
+
+.primary:hover,
+.primary:focus-visible {
+  border-color: var(--walnut) !important;
+  color: var(--walnut) !important;
+}
+
+.secondary {
+  background: rgba(20, 20, 20, 0.60) !important;
+  border-color: rgba(191, 195, 199, 0.55) !important;
+  color: var(--silver) !important;
+  font-weight: 800;
+  border-radius: 12px;
+  height: 44px;
+  padding: 0 16px;
+}
+
+.secondary:hover,
+.secondary:focus-visible {
+  border-color: rgba(212, 140, 58, 0.65) !important;
+}
+
+.media {
+  border-radius: 16px;
+  border: 1px solid rgba(111, 116, 122, 0.35);
+  background: rgba(20, 20, 20, 0.45);
+  overflow: hidden;
+  min-height: 240px;
+}
+
+.mediaInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.mediaGlow {
+  position: absolute;
+  inset: -40px;
+  background: radial-gradient(circle at 30% 20%, rgba(212, 140, 58, 0.18), transparent 55%);
+}
+
+.mediaMock {
+  position: absolute;
+  inset: 18px;
+  border-radius: 14px;
+  border: 1px dashed rgba(191, 195, 199, 0.35);
+  background: rgba(0, 0, 0, 0.18);
+}

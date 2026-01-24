@@ -44,6 +44,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .icon {
   color: var(--icon-color);
 }
@@ -156,22 +162,6 @@ body {
 
 .ant-typography a:hover {
   color: var(--btn-accent-hover) !important;
-}
-
-/* =======================
-   RESPONSIVE HELPERS
-======================= */
-img,
-.logo img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-.heroImage {
-  width: 100%;
-  height: auto;
-  display: block;
 }
 
 /* Utility container spacing for small screens */

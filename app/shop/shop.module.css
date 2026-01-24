@@ -1,0 +1,46 @@
+
+.cardWrap {
+  position: relative;
+  margin-top: 22px;
+}
+
+.cardWrap::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  transform: translateX(-50%);
+  width: min(780px, 92%);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(212,140,58,0.9), transparent);
+  filter: blur(0.2px);
+  opacity: 0.9;
+}
+
+.card {
+  border-radius: 22px;
+  border: 1px solid rgba(212, 140, 58, 0.35);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.02)
+  );
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  backdrop-filter: blur(10px);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding: 26px;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+}

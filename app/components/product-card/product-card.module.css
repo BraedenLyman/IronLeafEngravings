@@ -1,0 +1,61 @@
+.card {
+  display: block;
+  border-radius: 18px;
+  overflow: hidden;
+  text-decoration: none;
+  border: 1px solid rgba(191, 195, 199, 0.14);
+  background: rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(212, 140, 58, 0.45);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+}
+
+.imageWrapper {
+  position: relative;
+  height: 220px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.image {
+  object-fit: cover;
+}
+
+.content {
+  padding: 16px 16px 14px;
+}
+
+.content h2 {
+  margin: 0 0 6px;
+  font-size: 1.2rem;
+  color: rgba(212, 140, 58, 0.95);
+  font-weight: 800;
+}
+
+.content p {
+  margin: 0;
+  color: rgba(191, 195, 199, 0.9);
+  line-height: 1.55;
+  font-size: 0.98rem;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.price {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 800;
+}
+
+.cta {
+  color: rgba(212, 140, 58, 0.95);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
