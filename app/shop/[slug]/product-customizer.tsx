@@ -151,7 +151,9 @@ export default function ProductCustomizer({ product }: { product: Product }) {
         <span className={styles.priceText}>
           ${price} <span className={styles.muted}>/ set</span>
         </span>
-        <span className={styles.muted}>({product.included})</span>
+        {product.slug !== "wooden-coasters" && (
+          <span className={styles.muted}>({product.included})</span>
+        )}
       </div>
 
       <div className={styles.actionRow}>

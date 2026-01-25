@@ -26,4 +26,11 @@
   text-align: center;
   font-weight: 900;
   outline: none;
+  appearance: textfield;
+}
+
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

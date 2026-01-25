@@ -48,6 +48,17 @@ export default function ProductClient({ slug }: { slug: string }) {
     );
   }
 
+  const keyPoints =
+    product.slug === "wooden-coasters"
+      ? [
+          "Natural hardwood coasters with warm, visible grain.",
+          "Laser-engraved from your photo, logo, or artwork.",
+          "Sealed surface for durability and easy wipe-downs.",
+          "Approximately 4 in x 4 in with smooth rounded edges.",
+          "Set of 4 with protective backing included.",
+        ]
+      : product.keyPoints;
+
   return (
     <section className={shared.container}>
       <div className={shared.hero}>
@@ -72,7 +83,7 @@ export default function ProductClient({ slug }: { slug: string }) {
               <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>Key points</h2>
                 <ul className={styles.list}>
-                  {product.keyPoints.map((p) => (
+                  {keyPoints.map((p) => (
                     <li key={p}>{p}</li>
                   ))}
                 </ul>
