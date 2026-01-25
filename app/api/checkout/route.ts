@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   const body = await req.json();
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://iron-leaf.web.app";
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",

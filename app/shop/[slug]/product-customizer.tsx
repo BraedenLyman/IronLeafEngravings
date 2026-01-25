@@ -1,12 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styles from "./product-page.module.css";
 import QuantityPicker from "../../components/quantity-picker/quantity-picker";
 import { useCart } from "../../components/cart/CartContext";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/app/lib/firebaseClient";
-
 
 type Product = {
   slug: string;
@@ -23,19 +22,33 @@ export default function ProductCustomizer({ product }: { product: Product }) {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
 
-  const price = useMemo(() => (product.priceCents / 100).toFixed(2), [product]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>("");
+
+  const price = useMemo(() => (product.priceCents / 100).toFixed(2), [product.priceCents]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   const onFileChange = (f: File | null) => {
+    setError("");
     setFile(f);
+
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+
     if (!f) {
       setPreviewUrl("");
       return;
     }
+
     const url = URL.createObjectURL(f);
     setPreviewUrl(url);
   };
 
-  const canSubmit = qty > 0 && !!file;
+  const canSubmit = qty >= 1 && !!file && !loading;
 
   const handleAddToCart = () => {
     if (!file) return;
@@ -47,42 +60,57 @@ export default function ProductCustomizer({ product }: { product: Product }) {
       unitPriceCents: product.priceCents,
       quantity: qty,
       included: product.included,
-      // NOTE: For a real checkout, you’ll upload file to storage (S3/Firebase) and store the URL.
-      // This is a local preview only (good for UI/testing).
       imagePreviewUrl: previewUrl,
       uploadedFileName: file.name,
     });
-};
+  };
 
-const handleBuyNow = async () => {
-  if (!file) return;
+  const handleBuyNow = async () => {
+    if (!file) return;
 
-  const uploadPath = `uploads/${product.slug}/${crypto.randomUUID()}-${file.name}`;
-  const fileRef = ref(storage, uploadPath);
+    setLoading(true);
+    setError("");
 
-  await uploadBytes(fileRef, file);
-  const imageUrl = await getDownloadURL(fileRef);
+    try {
+      // 1) Upload image to Firebase Storage
+      const uploadPath = `uploads/${product.slug}/${crypto.randomUUID()}-${file.name}`;
+      const fileRef = ref(storage, uploadPath);
 
-  const res = await fetch("/api/checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      items: [
-        {
-          name: product.title,
-          priceInCents: product.priceCents,
+      await uploadBytes(fileRef, file);
+      const imageUrl = await getDownloadURL(fileRef);
+
+      // 2) Call Firebase Function (Stripe Checkout Session)
+      // Use same-origin endpoint to avoid CORS
+      const res = await fetch("/api/createCheckoutSession", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug: product.slug,
           quantity: qty,
-        },
-      ],
-      imageUrl,
-      uploadedFileName: file.name,
-      productSlug: product.slug,
-    }),
-  });
+          uploadedImageUrl: imageUrl,
+          uploadedFileName: file.name,
+        }),
+      });
 
-  const data = await res.json();
-  window.location.href = data.url;
-};
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error ?? "Checkout failed");
+      }
+
+      if (!data?.url) {
+        throw new Error("No checkout URL returned");
+      }
+
+      // 3) Redirect to Stripe Checkout
+      window.location.href = data.url;
+    } catch (e: any) {
+      setError(e?.message ?? "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className={styles.customizer}>
@@ -103,6 +131,7 @@ const handleBuyNow = async () => {
               type="file"
               accept="image/*"
               onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
+              disabled={loading}
             />
 
             <p className={styles.helperText}>
@@ -141,12 +170,11 @@ const handleBuyNow = async () => {
           onClick={handleBuyNow}
           type="button"
         >
-          Buy Now
+          {loading ? "Starting checkout..." : "Buy Now"}
         </button>
 
-        {!canSubmit && (
-          <p className={styles.warningText}>Upload an image to continue.</p>
-        )}
+        {!file && <p className={styles.warningText}>Upload an image to continue.</p>}
+        {error && <p className={styles.warningText}>{error}</p>}
       </div>
     </div>
   );
