@@ -1,16 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { Steps, Card, Button } from "antd";
+import { Card, Button } from "antd";
 import Header from "../components/header/header";
 import styles from "./how-it-works.module.css";
 
 const steps = [
-  { title: "Choose product", content: "Pick the item you want engraved (coasters, etc.)." },
-  { title: "Upload image", content: "Upload a family photo, pet pic, logo, or any image you love." },
-  { title: "Checkout", content: "Enter shipping details and place your order securely." },
-  { title: "Confirmation", content: "We review your image and email you when it’s approved." },
-  { title: "Wait for delivery", content: "We engrave it, package it carefully, and ship it to you." },
+  {
+    title: "Pick your piece",
+    content: "Choose the product you want engraved, from coasters to gifts and decor.",
+  },
+  {
+    title: "Upload your image",
+    content: "Send a family photo, pet portrait, logo, or artwork you love.",
+  },
+  {
+    title: "We refine & approve",
+    content: "We review the file and email a quick confirmation if needed.",
+  },
+  {
+    title: "Engraved with care",
+    content: "Your design is etched precisely on premium materials in our studio.",
+  },
+  {
+    title: "Packaged & delivered",
+    content: "We pack it safely and ship it to your door with tracking.",
+  },
 ];
 
 export default function HowItWorksPage() {
@@ -27,13 +42,17 @@ export default function HowItWorksPage() {
         </div>
 
         <div className={styles.cardWrap}>
-          <Card className={styles.card} >
-            <div className={styles.desktopOnly}>
-              <Steps current={0} items={steps} className={styles.steps} />
-            </div>
-
-            <div className={styles.mobileOnly}>
-              <Steps orientation="vertical" current={0} items={steps} className={styles.stepsVertical} />
+          <Card className={styles.card}>
+            <div className={styles.flowGrid}>
+              {steps.map((step, index) => (
+                <article className={styles.flowCard} key={step.title}>
+                  <div className={styles.stepHeader}>
+                    <div className={styles.stepBadge}>{index + 1}</div>
+                    <h3 className={styles.stepTitle}>{step.title}</h3>
+                  </div>
+                  <p className={styles.stepBody}>{step.content}</p>
+                </article>
+              ))}
             </div>
 
             <div className={styles.ctaRow}>

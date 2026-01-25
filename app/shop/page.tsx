@@ -23,7 +23,7 @@ export default function ShopPage() {
                 title="Wooden Coasters"
                 description="Real hardwood with a warm finish — perfect for family photos."
                 price="$29.99"
-                image="/products/wooden-coaster.jpg"
+                image="/products/wooden-coaster.png"
                 href="/shop/wooden-coasters"
               />
 
