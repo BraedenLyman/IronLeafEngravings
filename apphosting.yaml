@@ -1,0 +1,24 @@
+env:
+  - variable: NEXT_PUBLIC_APP_URL
+    value: "https://iron-leaf-backend--iron-leaf.us-east4.hosted.app"
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "AIzaSyCArKuNwgLAOFfwpQLZ_X5Dgd7EQgV6Zmc"
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "iron-leaf.firebaseapp.com"
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "iron-leaf"
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "iron-leaf.appspot.com"
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:124706414941:web:c6a0baacdf137c3946c8b4"
+    availability: [BUILD, RUNTIME]
