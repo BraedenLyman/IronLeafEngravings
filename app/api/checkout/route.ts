@@ -15,6 +15,7 @@ type CartBody = {
   productSlug?: string;
   uploadedFileName?: string;
   imageUrl?: string;
+  uploadedImageUrl?: string;
 };
 
 type BuyNowBody = {
@@ -47,6 +48,8 @@ export async function POST(req: Request) {
       const adminApp = getAdmin();
       const db = adminApp.firestore();
 
+      const uploadedUrl = String(body.uploadedImageUrl ?? body.imageUrl ?? "");
+
       const pendingRef = db.collection("pendingCheckouts").doc();
       await pendingRef.set({
         createdAt: adminApp.firestore.FieldValue.serverTimestamp(),
@@ -54,7 +57,7 @@ export async function POST(req: Request) {
         type: "cart",
         productSlug: body.productSlug ?? "cart",
         uploadedFileName: body.uploadedFileName ?? "",
-        imageUrl: body.imageUrl ?? "",
+        imageUrl:uploadedUrl,
         items: items.map((i) => ({
           name: i.name,
           quantity: i.quantity,

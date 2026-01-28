@@ -86,8 +86,10 @@ export async function POST(req: Request) {
         { merge: true }
       );
     }
-
+    const uploadedUrl = pendingData?.imageUrl ?? "";
+    
     await orderRef.set({
+      
       createdAt: adminApp.firestore.FieldValue.serverTimestamp(),
       stripeSessionId: session.id,
       stripeCustomerId,
@@ -98,7 +100,8 @@ export async function POST(req: Request) {
       pendingOrderId,
       productSlug: pendingData?.productSlug ?? session.metadata?.productSlug ?? "",
       uploadedFileName: pendingData?.uploadedFileName ?? "",
-      imageUrl: pendingData?.imageUrl ?? "",
+      imageUrl: uploadedUrl,
+      uploadedImageUrl: uploadedUrl,
       items: pendingData?.items ?? [],
 
       customer: {

@@ -87,7 +87,6 @@ export default async function AdminOrdersPage() {
 
   return (
     <main style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
-      {/* Makes the dropdown options readable in most browsers */}
       <style>{`
         select, option {
           background-color: #1a1a1a;
@@ -121,13 +120,30 @@ export default async function AdminOrdersPage() {
                       o.createdAt?.toDate?.()?.toLocaleString?.() ??
                       (o.createdAt ? String(o.createdAt) : "—");
 
-                    const shipping = o.shipping
-                      ? `${o.shipping.line1}${o.shipping.line2 ? `, ${o.shipping.line2}` : ""}, ${o.shipping.city}, ${o.shipping.province} ${o.shipping.postal}, ${o.shipping.country}`
-                      : "—";
+                    const shipping = (() => {
+                      const addr = o?.shipping?.address || o?.shipping || null;
+                      if (!addr) return "—";
+
+                      const line1 = addr.line1 ?? "";
+                      const line2 = addr.line2 ? `, ${addr.line2}` : "";
+                      const city = addr.city ?? "";
+                      const province = addr.state ?? addr.province ?? "";
+                      const postal = addr.postal_code ?? addr.postal ?? "";
+                      const country = addr.country ?? "";
+
+                      const parts = [
+                        `${line1}${line2}`.trim(),
+                        city,
+                        [province, postal].filter(Boolean).join(" ").trim(),
+                        country,
+                      ].filter(Boolean);
+
+                      return parts.join(", ") || "—";
+                    })();
 
                     const items: Array<any> = Array.isArray(o.items) ? o.items : [];
 
-                    const thumbUrl = o.uploadedImageUrl || items.find((it) => it?.uploadedImageUrl)?.uploadedImageUrl || items.find((it) => it?.imageUrl)?.imageUrl || "";
+                    const thumbUrl =  o.imageUrl || o.uploadedImageUrl || items.find((it) => it?.imageUrl)?.imageUrl || items.find((it) => it?.uploadedImageUrl)?.uploadedImageUrl || "";
 
                     const downloadHref = `/api/admin/orders/${o.id}/download`;
 

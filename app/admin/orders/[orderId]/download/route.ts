@@ -8,9 +8,11 @@ function pickUploadedImage(o: any): { url: string; name?: string } | null {
 
   const url =
     o?.uploadedImageUrl ||
+    o?.imageUrl ||
     items.find((it) => it?.uploadedImageUrl)?.uploadedImageUrl ||
+    items.find((it) => it?.imageUrl)?.imageUrl ||
     "";
-
+    
   const name =
     o?.uploadedFileName ||
     items.find((it) => it?.uploadedFileName)?.uploadedFileName ||
