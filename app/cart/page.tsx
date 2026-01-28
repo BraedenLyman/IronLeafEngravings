@@ -4,7 +4,7 @@ import Header from "../components/Header/Header";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "./cart.module.css";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useCart } from "../components/cart/CartContext";
 import { Button } from "antd";
 
@@ -15,10 +15,53 @@ function formatMoney(cents: number) {
 export default function CartPage() {
   const { items, removeItem, subtotalCents, clear } = useCart();
 
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
+
   const itemCount = useMemo(
     () => items.reduce((sum, i) => sum + (i.quantity ?? 0), 0),
     [items]
   );
+
+  const handleCheckout = async () => {
+    setServerError("");
+
+    if (items.length === 0) {
+      setServerError("Your cart is empty.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((i) => ({
+            name: i.title,
+            quantity: i.quantity,
+            priceInCents: i.unitPriceCents,
+          })),
+          productSlug: "cart",
+          uploadedFileName: items
+            .map((i) => i.uploadedFileName)
+            .filter(Boolean)
+            .join(", "),
+          imageUrl: "",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Checkout failed");
+      if (!data?.url) throw new Error("No checkout URL returned");
+
+      window.location.href = data.url;
+    } catch (e: any) {
+      setServerError(e?.message ?? "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className={shared.page}>
@@ -26,28 +69,35 @@ export default function CartPage() {
 
       <section className={shared.container}>
         <div className={shared.hero}>
-          
-            <div>
-              <h1 className={shared.title}>Cart</h1>
-              <p className={shared.subtitle}>Review your items before checkout.</p>
-            </div>
-            
-            <div className={styles.heroRow}>
-              {items.length > 0 && (
-                <div className={styles.cartPill}>
-                  <span className={styles.cartPillLabel}>Items</span>
-                  <span className={styles.cartPillValue}>{itemCount}</span>
-                </div>
-              )}
+          <div>
+            <h1 className={shared.title}>Cart</h1>
+            <p className={shared.subtitle}>Review your items before checkout.</p>
+          </div>
+
+          <div className={styles.heroRow}>
+            {items.length > 0 && (
+              <div className={styles.cartPill}>
+                <span className={styles.cartPillLabel}>Items</span>
+                <span className={styles.cartPillValue}>{itemCount}</span>
+              </div>
+            )}
           </div>
         </div>
 
+        {/* EMPTY STATE */}
         {items.length === 0 ? (
           <div className={styles.emptyCard}>
+            <div className={styles.emptyIcon} aria-hidden />
             <h2 className={styles.emptyTitle}>Your cart is empty</h2>
             <p className={styles.emptyText}>
               Pick a product, upload an image, and we’ll engrave it onto your item.
             </p>
+
+            {serverError ? (
+              <p className={styles.note}>
+                {serverError}
+              </p>
+            ) : null}
 
             <Button className={shared.pBtn} href="/shop">
               Continue shopping
@@ -55,17 +105,19 @@ export default function CartPage() {
           </div>
         ) : (
           <div className={styles.grid}>
+          
             <div className={styles.card}>
               <div className={styles.cardHeader}>
                 <h2 className={styles.cardTitle}>Cart items</h2>
-                <button className={styles.linkBtn} onClick={clear}>
+                <button className={styles.linkBtn} onClick={clear} type="button">
                   Clear cart
                 </button>
               </div>
 
               <div className={styles.items}>
                 {items.map((i) => {
-                  const lineTotal = i.unitPriceCents * i.quantity;
+                  const qty = i.quantity ?? 0;
+                  const lineTotal = i.unitPriceCents * qty;
 
                   return (
                     <div className={styles.item} key={i.id}>
@@ -85,16 +137,22 @@ export default function CartPage() {
                       <div className={styles.itemMain}>
                         <div className={styles.itemTop}>
                           <div className={styles.itemTitleRow}>
-                            <div className={styles.itemTitle}>{i.title}</div>
-                            <span className={styles.qtyBadge}>Qty {i.quantity}</span>
+                            <div className={styles.itemTitle} title={i.title}>
+                              {i.title}
+                            </div>
+                            <span className={styles.qtyBadge}>Qty {qty}</span>
                           </div>
 
                           <div className={styles.itemPrice}>{formatMoney(lineTotal)}</div>
                         </div>
 
                         <div className={styles.meta}>
-                          <span className={styles.metaDot}>•</span>
-                          <span>{i.included}</span>
+                          {i.included ? (
+                            <>
+                              <span className={styles.metaDot}>•</span>
+                              <span>{i.included}</span>
+                            </>
+                          ) : null}
 
                           {i.uploadedFileName ? (
                             <>
@@ -110,6 +168,7 @@ export default function CartPage() {
                           <button
                             className={styles.dangerBtn}
                             onClick={() => removeItem(i.id)}
+                            type="button"
                           >
                             Remove
                           </button>
@@ -133,7 +192,7 @@ export default function CartPage() {
 
                   <div className={styles.summaryRow}>
                     <span className={styles.muted}>Shipping</span>
-                    <span className={styles.muted}>Calculated at checkout</span>
+                    <span className={styles.muted}>Calculated in Stripe</span>
                   </div>
 
                   <div className={styles.divider} />
@@ -144,16 +203,28 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                <Button className={shared.pBtn} href="/checkout-confirm">
-                  Checkout
-                </Button>
+    
+                {serverError ? (
+                  <p className={styles.note} >
+                    {serverError}
+                  </p>
+                ) : null}
+
+                <button
+                  className={shared.pBtn}
+                  onClick={handleCheckout}
+                  disabled={loading}
+                  type="button"
+                >
+                  {loading ? "Starting checkout..." : "Checkout"}
+                </button>
 
                 <Button className={shared.sBtn} href="/shop">
                   Add more items
                 </Button>
 
                 <p className={styles.note}>
-                  You’ll confirm your upload and details before payment.
+                  You’ll be redirected to Stripe to complete payment securely.
                 </p>
               </div>
             </aside>

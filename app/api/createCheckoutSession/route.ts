@@ -41,8 +41,8 @@ export async function POST(req: Request) {
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL ||
       process.env.APP_BASE_URL ||
-      "https://iron-leaf.web.app";
-    const successUrl = `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`;
+      "http://localhost:3000";
+    const successUrl = `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/shop/${encodeURIComponent(slug)}`;
 
     const session = await stripe.checkout.sessions.create({
@@ -61,6 +61,8 @@ export async function POST(req: Request) {
         uploadedFileName: body.uploadedFileName ?? "",
       },
     });
+
+    console.log("Session created:", session.id, "shipping:", session.shipping_address_collection);
 
     return NextResponse.json({ url: session.url });
   } catch (e: any) {
