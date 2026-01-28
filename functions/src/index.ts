@@ -62,8 +62,6 @@ export const createCheckoutSession = onRequest(
       const successUrl = `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${baseUrl}/shop/${encodeURIComponent(slug)}`;
 
-
-
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         line_items: [{ price: product.stripePriceId, quantity }],
