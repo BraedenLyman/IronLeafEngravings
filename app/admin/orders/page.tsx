@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { adminDb } from "@/app/lib/firebaseAdmin";
 import { requireAdmin } from "@/app/lib/adminGate";
+import { redirect } from "next/navigation";
 
 function money(cents: number) {
   return `$${(cents / 100).toFixed(2)}`;
@@ -24,21 +25,15 @@ async function updateOrderStatus(formData: FormData) {
 }
 
 export default async function AdminOrdersPage() {
-  const gate = await requireAdmin();
-  if (!gate.ok) {
-    return (
-      <main style={{ padding: 24 }}>
-        <h1>Not authorized</h1>
-        <p>You don’t have access to this page.</p>
-      </main>
-    );
-  }
+    const gate = await requireAdmin();
 
-  const snap = await adminDb
-    .collection("orders")
-    .orderBy("createdAt", "desc")
-    .limit(50)
-    .get();
+    if (!gate.ok) redirect("/admin/login");
+
+    const snap = await adminDb
+        .collection("orders")
+        .orderBy("createdAt", "desc")
+        .limit(50)
+        .get();
 
   const orders = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
 
