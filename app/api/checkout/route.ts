@@ -1,10 +1,22 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/app/lib/firebaseAdmin";
 import { getStripe } from "@/app/lib/stripe";
 
 export const runtime = "nodejs";
 
-type Body = {
+type CartItem = {
+  name: string;
+  quantity: number;
+  priceInCents: number;
+};
+
+type CartBody = {
+  items: CartItem[];
+  productSlug?: string;
+  uploadedFileName?: string;
+  imageUrl?: string;
+};
+
+type BuyNowBody = {
   slug: string;
   quantity?: number;
   uploadedImageUrl?: string;
@@ -13,64 +25,67 @@ type Body = {
 
 export async function POST(req: Request) {
   try {
-    const db = getDb();
     const stripe = getStripe();
-    const body = (await req.json()) as Body;
-    const slug = body.slug?.trim();
-    const quantity = Math.max(1, Math.min(99, Number(body.quantity ?? 1)));
 
+    const body = (await req.json()) as Partial<CartBody & BuyNowBody>;
+
+    // Build origin safely (works on App Hosting + local)
+    const origin =
+      req.headers.get("origin") ??
+      process.env.NEXT_PUBLIC_APP_URL ??
+      "http://localhost:3000";
+
+    // -------------------------
+    // CART CHECKOUT (items[])
+    // -------------------------
+    if (Array.isArray(body.items) && body.items.length > 0) {
+      const items = body.items;
+
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        line_items: items.map((i) => ({
+          quantity: i.quantity,
+          price_data: {
+            currency: "cad",
+            unit_amount: i.priceInCents,
+            product_data: { name: i.name },
+          },
+        })),
+
+        billing_address_collection: "auto",
+        shipping_address_collection: { allowed_countries: ["CA", "US"] },
+        phone_number_collection: { enabled: true },
+
+        success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/cart`,
+
+        metadata: {
+          productSlug: body.productSlug ?? "cart",
+          uploadedFileName: body.uploadedFileName ?? "",
+          imageUrl: body.imageUrl ?? "",
+        },
+      });
+
+      return NextResponse.json({ url: session.url });
+    }
+
+    // -------------------------
+    // BUY NOW CHECKOUT (slug)
+    // -------------------------
+    const slug = (body.slug ?? "").trim();
     if (!slug) {
       return NextResponse.json({ error: "Missing slug" }, { status: 400 });
     }
 
-    const snap = await db.collection("products").doc(slug).get();
-    if (!snap.exists) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
-    }
-
-    const product = snap.data() as { stripePriceId?: string; active: boolean };
-    if (!product.active) {
-      return NextResponse.json({ error: "Product is not active" }, { status: 400 });
-    }
-
-    if (!product.stripePriceId) {
-      return NextResponse.json(
-        { error: "Missing stripePriceId on product" },
-        { status: 400 }
-      );
-    }
-
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
-    const successUrl = `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${baseUrl}/shop/${encodeURIComponent(slug)}`;
-
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: [{ price: product.stripePriceId, quantity }],
-
-      billing_address_collection: "auto",
-
-      shipping_address_collection: {
-        allowed_countries: ["CA", "US"],
-      },
-
-      phone_number_collection: { enabled: true },
-
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      metadata: {
-        slug,
-        quantity: String(quantity),
-        uploadedImageUrl: body.uploadedImageUrl ?? "",
-        uploadedFileName: body.uploadedFileName ?? "",
-      },
-    });
-
-
-    console.log("Session created:", session.id, "shipping:", session.shipping_address_collection);
-
-    return NextResponse.json({ url: session.url });
+    // If you still want Buy Now to use Firestore price IDs,
+    // keep your db lookup here. If you don't, you'd need to
+    // pass price info like cart does.
+    return NextResponse.json(
+      { error: "Buy Now not wired up yet (no cart items sent)" },
+      { status: 400 }
+    );
   } catch (e: any) {
+    console.error("POST /api/checkout error:", e);
     return NextResponse.json(
       { error: e?.message ?? "Unknown error" },
       { status: 500 }

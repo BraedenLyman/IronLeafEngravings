@@ -95,7 +95,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
       // 2) Call Firebase Function (Stripe Checkout Session)
       // Use same-origin endpoint to avoid CORS
-      const res = await fetch("/api/createCheckoutSession", {
+      const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
