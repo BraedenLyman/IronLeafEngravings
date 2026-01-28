@@ -127,10 +127,7 @@ export default async function AdminOrdersPage() {
 
                     const items: Array<any> = Array.isArray(o.items) ? o.items : [];
 
-                    const thumbUrl =
-                      o.uploadedImageUrl ||
-                      items.find((it) => it?.uploadedImageUrl)?.uploadedImageUrl ||
-                      "";
+                    const thumbUrl = o.uploadedImageUrl || items.find((it) => it?.uploadedImageUrl)?.uploadedImageUrl || items.find((it) => it?.imageUrl)?.imageUrl || "";
 
                     const downloadHref = `/api/admin/orders/${o.id}/download`;
 
@@ -183,23 +180,23 @@ export default async function AdminOrdersPage() {
                             )}
                           </div>
 
-                          {thumbUrl ? (
-                            <a
-                              href={downloadHref}
-                              style={{
-                                textAlign: "center",
-                                padding: "8px 10px",
-                                borderRadius: 10,
-                                border: "1px solid #444",
-                                background: "#1a1a1a",
-                                color: "white",
-                                textDecoration: "none",
-                                fontSize: 13,
-                              }}
-                            >
-                              Download upload
-                            </a>
-                          ) : null}
+                            <div>
+                                <a
+                                href={downloadHref}
+                                style={{
+                                    textAlign: "center",
+                                    padding: "8px 10px",
+                                    borderRadius: 10,
+                                    border: "1px solid #444",
+                                    background: "#1a1a1a",
+                                    color: "white",
+                                    textDecoration: "none",
+                                    fontSize: 13,
+                                }}
+                                >
+                                Download upload
+                                </a>
+                            </div>
                         </div>
 
                         <div style={{ display: "grid", gap: 10 }}>
