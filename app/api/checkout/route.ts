@@ -8,6 +8,8 @@ type CartItem = {
   name: string;
   quantity: number;
   priceInCents: number;
+  uploadedImageUrl?: string;
+  imageUrl?: string;
 };
 
 type CartBody = {
@@ -48,7 +50,11 @@ export async function POST(req: Request) {
       const adminApp = getAdmin();
       const db = adminApp.firestore();
 
-      const uploadedUrl = String(body.uploadedImageUrl ?? body.imageUrl ?? "");
+      const itemImageUrl =
+        items.find((i) => i.uploadedImageUrl || i.imageUrl)?.uploadedImageUrl ??
+        items.find((i) => i.uploadedImageUrl || i.imageUrl)?.imageUrl ??
+        "";
+      const uploadedUrl = String(body.uploadedImageUrl ?? body.imageUrl ?? itemImageUrl ?? "");
 
       const pendingRef = db.collection("pendingCheckouts").doc();
       await pendingRef.set({
@@ -57,11 +63,14 @@ export async function POST(req: Request) {
         type: "cart",
         productSlug: body.productSlug ?? "cart",
         uploadedFileName: body.uploadedFileName ?? "",
-        imageUrl:uploadedUrl,
+        imageUrl: uploadedUrl,
+        uploadedImageUrl: uploadedUrl,
         items: items.map((i) => ({
           name: i.name,
           quantity: i.quantity,
           priceInCents: i.priceInCents,
+          imageUrl: i.imageUrl ?? i.uploadedImageUrl ?? "",
+          uploadedImageUrl: i.uploadedImageUrl ?? i.imageUrl ?? "",
         })),
       });
 

@@ -115,6 +115,7 @@ export default function CheckoutConfirmPage() {
             name: i.title, 
             quantity: i.quantity,
             priceInCents: i.unitPriceCents, 
+            uploadedImageUrl: i.uploadedImageUrl,
           })),
           shipping,
           productSlug: "cart",
@@ -122,7 +123,6 @@ export default function CheckoutConfirmPage() {
             .map((i) => i.uploadedFileName)
             .filter(Boolean)
             .join(", "),
-          imageUrl: "",
         }),
       });
 

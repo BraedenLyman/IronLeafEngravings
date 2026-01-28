@@ -10,6 +10,7 @@ export type CartItem = {
   quantity: number;
   included: string;
   imagePreviewUrl?: string;
+  uploadedImageUrl?: string;
   uploadedFileName?: string;
 };
 

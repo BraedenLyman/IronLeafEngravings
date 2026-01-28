@@ -41,13 +41,13 @@ export default function CartPage() {
             name: i.title,
             quantity: i.quantity,
             priceInCents: i.unitPriceCents,
+            uploadedImageUrl: i.uploadedImageUrl,
           })),
           productSlug: "cart",
           uploadedFileName: items
             .map((i) => i.uploadedFileName)
             .filter(Boolean)
             .join(", "),
-          imageUrl: "",
         }),
       });
 
@@ -117,14 +117,15 @@ export default function CartPage() {
                 {items.map((i) => {
                   const qty = i.quantity ?? 0;
                   const lineTotal = i.unitPriceCents * qty;
+                  const previewUrl = i.imagePreviewUrl ?? i.uploadedImageUrl;
 
                   return (
                     <div className={styles.item} key={i.id}>
                       <div className={styles.thumbWrap}>
-                        {i.imagePreviewUrl ? (
+                        {previewUrl ? (
                           <img
                             className={styles.thumb}
-                            src={i.imagePreviewUrl}
+                            src={previewUrl}
                             alt={`${i.title} preview`}
                             loading="lazy"
                           />

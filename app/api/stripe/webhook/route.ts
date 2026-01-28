@@ -86,7 +86,12 @@ export async function POST(req: Request) {
         { merge: true }
       );
     }
-    const uploadedUrl = pendingData?.imageUrl ?? "";
+    const uploadedUrl =
+      pendingData?.imageUrl ??
+      pendingData?.uploadedImageUrl ??
+      pendingData?.items?.find((it: any) => it?.uploadedImageUrl || it?.imageUrl)?.uploadedImageUrl ??
+      pendingData?.items?.find((it: any) => it?.uploadedImageUrl || it?.imageUrl)?.imageUrl ??
+      "";
     
     await orderRef.set({
       

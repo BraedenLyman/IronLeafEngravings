@@ -24,6 +24,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
   const [previewUrl, setPreviewUrl] = useState<string>("");
 
   const [loading, setLoading] = useState(false);
+  const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string>("");
 
   const [added, setAdded] = useState(false);
@@ -58,24 +59,41 @@ export default function ProductCustomizer({ product }: { product: Product }) {
     setPreviewUrl(url);
   };
 
-  const canSubmit = qty >= 1 && !!file && !loading;
+  const isBusy = loading || adding;
+  const canSubmit = qty >= 1 && !!file && !isBusy;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!file) return;
 
-    addItem({
-      id: `${product.slug}-${crypto.randomUUID()}`,
-      slug: product.slug,
-      title: product.title,
-      unitPriceCents: product.priceCents,
-      quantity: qty,
-      included: product.included,
-      imagePreviewUrl: previewUrl,
-      uploadedFileName: file.name,
-    });
-
-    setAdded(true);
+    setAdding(true);
     setError("");
+    setAdded(false);
+
+    try {
+      const uploadPath = `uploads/${product.slug}/${crypto.randomUUID()}-${file.name}`;
+      const fileRef = ref(storage, uploadPath);
+
+      await uploadBytes(fileRef, file);
+      const imageUrl = await getDownloadURL(fileRef);
+
+      addItem({
+        id: `${product.slug}-${crypto.randomUUID()}`,
+        slug: product.slug,
+        title: product.title,
+        unitPriceCents: product.priceCents,
+        quantity: qty,
+        included: product.included,
+        imagePreviewUrl: previewUrl,
+        uploadedImageUrl: imageUrl,
+        uploadedFileName: file.name,
+      });
+
+      setAdded(true);
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to upload image");
+    } finally {
+      setAdding(false);
+    }
   };
 
   const handleBuyNow = async () => {
@@ -83,7 +101,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
     setLoading(true);
     setError("");
-     setAdded(false);
+    setAdded(false);
 
     try {
       // 1) Upload image to Firebase Storage
@@ -144,7 +162,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
               type="file"
               accept="image/*"
               onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
-              disabled={loading}
+              disabled={isBusy}
             />
 
             {previewUrl && (
@@ -172,7 +190,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
           onClick={handleAddToCart}
           type="button"
         >
-          Add to Cart
+          {adding ? "Adding..." : "Add to Cart"}
         </button>
 
         {/*
