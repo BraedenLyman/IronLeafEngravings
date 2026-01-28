@@ -207,7 +207,7 @@
 .primaryBtn {
   height: 46px;
   padding: 0 24px;
-  border-radius: 999px;
+  border-radius: 12px;
   font-weight: 900;
   border: 1px solid rgba(212, 140, 58, 0.9);
   background: rgba(212, 140, 58, 1);
@@ -219,7 +219,7 @@
 .secondaryBtn {
   height: 46px;
   padding: 0 24px;
-  border-radius: 999px;
+  border-radius: 12px;
   font-weight: 900;
   background: transparent;
   border: 1px solid rgba(191, 195, 199, 0.35);
@@ -238,6 +238,23 @@
   color: rgba(191, 195, 199, 0.85);
   font-weight: 700;
 }
+
+.addedText {
+  margin: 0;
+  font-weight: 800;
+  color: rgba(212, 140, 58, 0.95);
+  border: 1px solid rgba(212, 140, 58, 0.25);
+  background: rgba(212, 140, 58, 0.10);
+  padding: 10px 12px;
+  border-radius: 14px;
+  animation: popIn 180ms ease-out;
+}
+
+@keyframes popIn {
+  from { transform: translateY(4px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
 
 @media (max-width: 950px) {
   .layout {

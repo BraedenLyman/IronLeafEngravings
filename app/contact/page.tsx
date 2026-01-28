@@ -10,7 +10,6 @@ export default function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // ✅ Placeholder: later you can POST to an API route, Formspree, Resend, etc.
     setStatus("sent");
   };
 

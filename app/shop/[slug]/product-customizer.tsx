@@ -25,6 +25,8 @@ export default function ProductCustomizer({ product }: { product: Product }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
 
+  const [added, setAdded] = useState(false);
+
   const price = useMemo(() => (product.priceCents / 100).toFixed(2), [product.priceCents]);
 
   useEffect(() => {
@@ -33,8 +35,15 @@ export default function ProductCustomizer({ product }: { product: Product }) {
     };
   }, [previewUrl]);
 
+  useEffect(() => {
+    if (!added) return;
+    const t = window.setTimeout(() => setAdded(false), 2200);
+    return () => window.clearTimeout(t);
+  }, [added]);
+
   const onFileChange = (f: File | null) => {
     setError("");
+    setAdded(false);
     setFile(f);
 
     if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -63,6 +72,9 @@ export default function ProductCustomizer({ product }: { product: Product }) {
       imagePreviewUrl: previewUrl,
       uploadedFileName: file.name,
     });
+
+    setAdded(true);
+    setError("");
   };
 
   const handleBuyNow = async () => {
@@ -70,6 +82,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
     setLoading(true);
     setError("");
+     setAdded(false);
 
     try {
       // 1) Upload image to Firebase Storage
@@ -171,6 +184,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
           {loading ? "Starting checkout..." : "Buy Now"}
         </button>
 
+        {added && <p className={styles.addedText}>Item added to cart!</p>}
         {!file && <p className={styles.warningText}>Upload an image to continue.</p>}
         {error && <p className={styles.warningText}>{error}</p>}
       </div>
