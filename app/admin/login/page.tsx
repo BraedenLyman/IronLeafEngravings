@@ -10,20 +10,24 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<string>("");
+  const [msg, setMsg] = useState("");
 
-  async function signInEmailPassword(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (loading) return;
+
+    const cleanEmail = email.trim();
+
+    if (!cleanEmail || !password) {
+      setMsg("Enter email and password.");
+      return;
+    }
+
     setLoading(true);
     setMsg("");
 
     try {
-      const cred = await signInWithEmailAndPassword(
-        auth,
-        email.trim(),
-        password
-      );
-
+      const cred = await signInWithEmailAndPassword(auth, cleanEmail, password);
       const idToken = await cred.user.getIdToken(true);
 
       const r = await fetch("/api/session", {
@@ -50,8 +54,7 @@ export default function AdminLoginPage() {
     setMsg("");
     try {
       await signOut(auth);
-      await fetch("/api/session", { method: "DELETE" }); 
-      setEmail("");
+      await fetch("/api/session", { method: "DELETE" });
       setPassword("");
       setMsg("Signed out.");
     } catch (err: any) {
@@ -64,21 +67,19 @@ export default function AdminLoginPage() {
   return (
     <main style={{ padding: 24, maxWidth: 520, margin: "0 auto" }}>
       <h1>Admin Login</h1>
-      <p style={{ opacity: 0.8 }}>
-        Sign in to manage orders. Only admin users can access the orders page.
-      </p>
 
-      <form onSubmit={signInEmailPassword} style={{ display: "grid", gap: 10 }}>
+      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12 }}>
         <label style={{ display: "grid", gap: 6 }}>
           <span style={{ fontSize: 13, opacity: 0.8 }}>Email</span>
           <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            name="email"
             type="email"
             autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             style={{
-              padding: "12px 12px",
+              padding: "12px",
               borderRadius: 12,
               border: "1px solid #444",
               background: "#0f0f0f",
@@ -90,13 +91,14 @@ export default function AdminLoginPage() {
         <label style={{ display: "grid", gap: 6 }}>
           <span style={{ fontSize: 13, opacity: 0.8 }}>Password</span>
           <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            name="password"
             type="password"
             autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
             style={{
-              padding: "12px 12px",
+              padding: "12px",
               borderRadius: 12,
               border: "1px solid #444",
               background: "#0f0f0f",
@@ -115,7 +117,6 @@ export default function AdminLoginPage() {
             background: "#111",
             color: "white",
             cursor: "pointer",
-            width: "100%",
           }}
         >
           {loading ? "Signing in..." : "Sign in"}
@@ -132,8 +133,6 @@ export default function AdminLoginPage() {
             background: "transparent",
             color: "white",
             cursor: "pointer",
-            width: "100%",
-            opacity: 0.9,
           }}
         >
           Sign out
