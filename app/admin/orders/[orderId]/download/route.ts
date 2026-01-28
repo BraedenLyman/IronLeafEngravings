@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { adminDb } from "@/app/lib/firebaseAdmin";
 import { requireAdmin } from "@/app/lib/adminGate";
 
@@ -20,20 +21,22 @@ function pickUploadedImage(o: any): { url: string; name?: string } | null {
 }
 
 export async function GET(
-  _req: Request,
-  { params }: { params: { orderId: string } }
+  _req: NextRequest,
+  context: { params: Promise<{ orderId: string }> }
 ) {
   const gate = await requireAdmin();
   if (!gate.ok) {
     return NextResponse.json({ error: "Not authorized" }, { status: 401 });
   }
 
-  const orderId = String(params.orderId || "").trim();
-  if (!orderId) {
+  const { orderId } = await context.params;
+  const id = String(orderId || "").trim();
+
+  if (!id) {
     return NextResponse.json({ error: "Missing orderId" }, { status: 400 });
   }
 
-  const doc = await adminDb.collection("orders").doc(orderId).get();
+  const doc = await adminDb.collection("orders").doc(id).get();
   if (!doc.exists) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
@@ -46,20 +49,16 @@ export async function GET(
 
   const r = await fetch(img.url);
   if (!r.ok) {
-    return NextResponse.json(
-      { error: "Failed to fetch uploaded image" },
-      { status: 502 }
-    );
+    return NextResponse.json({ error: "Failed to fetch uploaded image" }, { status: 502 });
   }
 
   const contentType = r.headers.get("content-type") || "application/octet-stream";
   const arrayBuffer = await r.arrayBuffer();
 
   const safeBase =
-    (img.name || `order-${orderId}-upload`)
-      .replace(/[^\w.\-()+ ]+/g, "_")
-      .trim() || `order-${orderId}-upload`;
-      
+    (img.name || `order-${id}-upload`).replace(/[^\w.\-()+ ]+/g, "_").trim() ||
+    `order-${id}-upload`;
+
   let filename = safeBase;
   if (!/\.[a-z0-9]{2,6}$/i.test(filename)) {
     const ext =
