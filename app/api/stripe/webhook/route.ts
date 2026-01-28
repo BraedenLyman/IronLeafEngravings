@@ -1,7 +1,7 @@
-import { stripe } from "@/app/lib/stripe";
-import { db } from "@/app/lib/firebaseAdmin";
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
+import { getStripe } from "@/app/lib/stripe";
+import { db } from "@/app/lib/firebaseAdmin";
+import type Stripe from "stripe";
 
 export const runtime = "nodejs";
 
@@ -18,6 +18,9 @@ export async function POST(req: Request) {
 
   const payload = await req.text();
 
+  // ✅ create stripe client before using it
+  const stripe = getStripe();
+
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(payload, sig, webhookSecret);
@@ -29,67 +32,66 @@ export async function POST(req: Request) {
   }
 
   if (event.type === "checkout.session.completed") {
-  const session = event.data.object as Stripe.Checkout.Session;
+    const session = event.data.object as Stripe.Checkout.Session;
 
-  if (session.payment_status === "paid") {
-    const full = await stripe.checkout.sessions.retrieve(session.id, {
-      expand: ["line_items", "customer_details"],
-    });
+    if (session.payment_status === "paid") {
+      const full = await stripe.checkout.sessions.retrieve(session.id, {
+        expand: ["line_items", "customer_details"],
+      });
 
-    const cd = full.customer_details;
-    const md = full.metadata ?? {};
+      const cd = full.customer_details;
+      const md = full.metadata ?? {};
 
-    const shipping =
-      cd?.address
-        ? {
-            name: cd.name ?? "",
-            email: cd.email ?? "",
-            phone: cd.phone ?? "",
-            address: {
-              line1: cd.address.line1 ?? "",
-              line2: cd.address.line2 ?? "",
-              city: cd.address.city ?? "",
-              state: cd.address.state ?? "",
-              postal_code: cd.address.postal_code ?? "",
-              country: cd.address.country ?? "",
-            },
-          }
-        : null;
+      const shipping =
+        cd?.address
+          ? {
+              name: cd.name ?? "",
+              email: cd.email ?? "",
+              phone: cd.phone ?? "",
+              address: {
+                line1: cd.address.line1 ?? "",
+                line2: cd.address.line2 ?? "",
+                city: cd.address.city ?? "",
+                state: cd.address.state ?? "",
+                postal_code: cd.address.postal_code ?? "",
+                country: cd.address.country ?? "",
+              },
+            }
+          : null;
 
-    const lineItems =
-      full.line_items?.data?.map((li) => ({
-        description: li.description ?? "",
-        quantity: li.quantity ?? 0,
-        amountTotal: li.amount_total ?? 0,
-        currency: li.currency ?? "cad",
-        priceId: li.price?.id ?? null,
-      })) ?? [];
+      const lineItems =
+        full.line_items?.data?.map((li) => ({
+          description: li.description ?? "",
+          quantity: li.quantity ?? 0,
+          amountTotal: li.amount_total ?? 0,
+          currency: li.currency ?? "cad",
+          priceId: li.price?.id ?? null,
+        })) ?? [];
 
-    await db.collection("orders").doc(full.id).set({
-      createdAt: new Date(),
-      status: "paid",
+      await db.collection("orders").doc(full.id).set({
+        createdAt: new Date(),
+        status: "paid",
 
-      amount: full.amount_total,
-      currency: full.currency,
+        amount: full.amount_total,
+        currency: full.currency,
 
-      stripe: {
-        sessionId: full.id,
-        paymentIntent: full.payment_intent ?? null,
-      },
+        stripe: {
+          sessionId: full.id,
+          paymentIntent: full.payment_intent ?? null,
+        },
 
-      shipping, 
-      lineItems,  
+        shipping,
+        lineItems,
 
-      order: { 
-        slug: md.slug ?? "",
-        quantity: Number(md.quantity ?? "1"),
-        uploadedImageUrl: md.uploadedImageUrl ?? "",
-        uploadedFileName: md.uploadedFileName ?? "",
-      },
-    });
+        order: {
+          slug: md.slug ?? "",
+          quantity: Number(md.quantity ?? "1"),
+          uploadedImageUrl: md.uploadedImageUrl ?? "",
+          uploadedFileName: md.uploadedFileName ?? "",
+        },
+      });
+    }
   }
-}
-
 
   return NextResponse.json({ received: true });
 }

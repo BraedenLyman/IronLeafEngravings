@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/app/lib/stripe";
 import { db } from "@/app/lib/firebaseAdmin";
+import { getStripe } from "@/app/lib/stripe";
 
 export const runtime = "nodejs";
 
@@ -44,6 +44,8 @@ export async function POST(req: Request) {
       "http://localhost:3000";
     const successUrl = `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/shop/${encodeURIComponent(slug)}`;
+
+    const stripe = getStripe();
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
