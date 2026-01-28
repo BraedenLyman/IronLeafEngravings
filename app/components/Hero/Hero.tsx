@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "./hero.module.css";
+import styles from "@/app/components/Hero/hero.module.css";
 import shared from "../../shared-page/shared-page.module.css";
 import Image from "next/image";
 import Link from "next/link";
