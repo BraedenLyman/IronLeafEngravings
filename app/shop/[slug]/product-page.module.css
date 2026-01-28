@@ -204,35 +204,6 @@
   flex-wrap: wrap;
 }
 
-.primaryBtn {
-  height: 46px;
-  padding: 0 24px;
-  border-radius: 12px;
-  font-weight: 900;
-  border: 1px solid rgba(212, 140, 58, 0.9);
-  background: rgba(212, 140, 58, 1);
-  color: #fff;
-  cursor: pointer;
-  box-shadow: 0 10px 25px rgba(212, 140, 58, 0.18);
-}
-
-.secondaryBtn {
-  height: 46px;
-  padding: 0 24px;
-  border-radius: 12px;
-  font-weight: 900;
-  background: transparent;
-  border: 1px solid rgba(191, 195, 199, 0.35);
-  color: rgba(191, 195, 199, 0.95);
-  cursor: pointer;
-}
-
-.primaryBtn:disabled,
-.secondaryBtn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
 .warningText {
   margin: 0;
   color: rgba(191, 195, 199, 0.85);

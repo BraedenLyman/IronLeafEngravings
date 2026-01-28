@@ -34,3 +34,73 @@
   color: rgba(191, 195, 199, 0.95);
   line-height: 1.55;
 }
+
+.pBtn {
+  margin-top: 10px;
+  height: 52px;
+  width: 100%;
+  padding: 0 24px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  border: 1px solid rgba(212, 140, 58, 0.9) !important;
+  background: rgba(212, 140, 58, 1) !important;
+  color: var(--charcoal) !important;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    filter 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.pBtn:hover {
+  background: var(--charcoal, #1c1c1c) !important;
+  border-color: rgba(212, 140, 58, 0.9) !important;
+  color: rgba(212, 140, 58, 1) !important;
+}
+
+.pBtn:active {
+  transform: translateY(1px);
+  filter: brightness(0.98);
+}
+
+.pBtn:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(212, 140, 58, 0.25) !important;
+}
+
+.pBtn:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.65;
+  filter: none;
+  transform: none;
+}
+
+.sBtn {
+  margin-top: 10px;
+  height: 52px;
+  width: 100%;
+  padding: 0 24px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  cursor: pointer;
+  transition: 
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.sBtn:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(212, 140, 58, 0.9) !important;
+  color: var(--amber) !important;
+}
+
+.sBtn:active {
+  transform: translateY(1px);
+}

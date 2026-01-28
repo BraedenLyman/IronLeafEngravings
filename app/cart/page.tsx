@@ -6,6 +6,7 @@ import styles from "./cart.module.css";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useCart } from "../components/cart/CartContext";
+import { Button } from "antd";
 
 function formatMoney(cents: number) {
   return `$${(cents / 100).toFixed(2)}`;
@@ -43,15 +44,14 @@ export default function CartPage() {
 
         {items.length === 0 ? (
           <div className={styles.emptyCard}>
-            <div className={styles.emptyIcon} aria-hidden />
             <h2 className={styles.emptyTitle}>Your cart is empty</h2>
             <p className={styles.emptyText}>
               Pick a product, upload an image, and we’ll engrave it onto your item.
             </p>
 
-            <Link className={styles.primaryBtn} href="/shop">
+            <Button className={shared.pBtn} href="/shop">
               Continue shopping
-            </Link>
+            </Button>
           </div>
         ) : (
           <div className={styles.grid}>
@@ -144,13 +144,13 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                <Link className={styles.primaryBtn} href="/checkout-confirm">
+                <Button className={shared.pBtn} href="/checkout-confirm">
                   Checkout
-                </Link>
+                </Button>
 
-                <Link className={styles.secondaryBtn} href="/shop">
+                <Button className={shared.sBtn} href="/shop">
                   Add more items
-                </Link>
+                </Button>
 
                 <p className={styles.note}>
                   You’ll confirm your upload and details before payment.

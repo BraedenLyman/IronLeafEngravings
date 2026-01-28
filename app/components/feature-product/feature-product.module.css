@@ -75,37 +75,6 @@
   text-decoration: none;
 }
 
-.primary {
-  background-color: var(--btn-accent) !important;
-  border-color: var(--btn-accent) !important;
-  color: var(--charcoal) !important;
-  font-weight: 800;
-  border-radius: 12px;
-  height: 44px;
-  padding: 0 16px;
-}
-
-.primary:hover,
-.primary:focus-visible {
-  border-color: var(--walnut) !important;
-  color: var(--walnut) !important;
-}
-
-.secondary {
-  background: rgba(20, 20, 20, 0.60) !important;
-  border-color: rgba(191, 195, 199, 0.55) !important;
-  color: var(--silver) !important;
-  font-weight: 800;
-  border-radius: 12px;
-  height: 44px;
-  padding: 0 16px;
-}
-
-.secondary:hover,
-.secondary:focus-visible {
-  border-color: rgba(212, 140, 58, 0.65) !important;
-}
-
 .media {
   border-radius: 16px;
   border: 1px solid rgba(111, 116, 122, 0.35);

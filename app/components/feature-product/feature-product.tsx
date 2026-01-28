@@ -1,4 +1,5 @@
 import styles from "./feature-product.module.css";
+import shared from "../../shared-page/shared-page.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "antd";
@@ -9,7 +10,6 @@ export default function FeatureProduct() {
     <section className={styles.section}>
       <div className={styles.container}>
         <div className={styles.card}>
-          {/* LEFT COPY */}
           <div className={styles.copy}>
             <span className={styles.kicker}>Featured</span>
             <h2 className={styles.title}>Wooden Coasters</h2>
@@ -22,7 +22,7 @@ export default function FeatureProduct() {
               <Link href="/shop/wooden-coasters" className={styles.linkReset}>
                 <Button
                   size="large"
-                  className={styles.primary}
+                  className={shared.pBtn}
                   icon={<FaArrowRight />}
                 >
                   View Coasters

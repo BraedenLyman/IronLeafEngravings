@@ -6,6 +6,7 @@ import Header from "../components/Header/Header";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "./checkout-confirm.module.css";
 import { useCart } from "../components/cart/CartContext";
+import { Button } from "antd";
 
 function formatMoney(cents: number) {
   return `$${(cents / 100).toFixed(2)}`;
@@ -290,7 +291,7 @@ export default function CheckoutConfirmPage() {
 
 
                 <button
-                  className={styles.primaryBtn}
+                  className={shared.pBtn}
                   onClick={handleBuyNow}
                   disabled={loading}
                   type="button"
@@ -298,9 +299,9 @@ export default function CheckoutConfirmPage() {
                   {loading ? "Starting checkout..." : "Buy Now"}
                 </button>
 
-                <Link className={styles.backBtn} href="/cart">
+                <Button className={shared.sBtn} href="/cart">
                   Back to cart
-                </Link>
+                </Button>
 
                 <p className={styles.note}>
                   You’ll be redirected to Stripe to complete payment securely.

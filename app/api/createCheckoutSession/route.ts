@@ -48,10 +48,15 @@ export async function POST(req: Request) {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: product.stripePriceId, quantity }],
+        shipping_address_collection: {
+        allowed_countries: ["CA", "US"],
+      },
+      phone_number_collection: { enabled: true },
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata: {
         slug,
+        quantity: String(quantity),
         uploadedImageUrl: body.uploadedImageUrl ?? "",
         uploadedFileName: body.uploadedFileName ?? "",
       },

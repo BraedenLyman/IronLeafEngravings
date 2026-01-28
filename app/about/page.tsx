@@ -1,6 +1,8 @@
+import { FaArrowRight } from "react-icons/fa";
 import Header from "../components/Header/Header";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "./about.module.css";
+import Image from "next/image";
 
 export default function AboutPage() {
   return (
@@ -11,44 +13,41 @@ export default function AboutPage() {
         <div className={shared.hero}>
           <h1 className={shared.title}>About</h1>
           <p className={shared.subtitle}>
-            IronLeaf turns your most meaningful moments into lasting engraved pieces.
+            IronLeaf turns meaningful photos and designs into engraved keepsakes.
           </p>
         </div>
 
         <div className={styles.cardWrap}>
           <div className={styles.card}>
             <div className={styles.layout}>
-              {/* ✅ Image placeholder */}
+              {/* Image */}
               <div className={styles.imagePlaceholder}>
-                <div className={styles.imageInner}>
-                  <p>Image Placeholder</p>
-                  <span>Workshop / product photo goes here</span>
-                </div>
+                <Image
+                  src="/about/workshop.jpg"
+                  alt="IronLeaf laser engraving a coaster in our workshop"
+                  fill
+                  priority
+                  sizes="(max-width: 900px) 100vw, 520px"
+                  style={{ objectFit: "cover" }}
+                />
               </div>
 
+              {/* Content */}
               <div className={styles.content}>
-                <h2 className={styles.sectionTitle}>What we do</h2>
+                <h2 className={styles.sectionTitle}>What we make</h2>
                 <p className={styles.text}>
-                  We create custom engraved products (starting with coasters) using
-                  precision laser engraving. Upload your photo or design, and we’ll
-                  engrave it with crisp detail onto a premium coaster you’ll actually
-                  want to display.
+                  We create custom laser-engraved keep sakes that capture the moments that matter. Family photos,
+                  pets, wedding memories, logos, and more. Upload your image, choose your piece, and we’ll
+                  engrave it with crisp, high-contrast detail.
                 </p>
 
                 <h2 className={styles.sectionTitle}>Why IronLeaf</h2>
                 <ul className={styles.list}>
-                  <li>High-contrast engraving that captures detail</li>
-                  <li>Premium materials: hardwood & sleek ceramic</li>
-                  <li>Made with care in Canada</li>
-                  <li>Perfect for gifts, weddings, and keepsakes</li>
+                  <li className={styles.listItem}><FaArrowRight/>Sharp engraving that keeps the details</li>
+                  <li className={styles.listItem}><FaArrowRight/>Made with care in Canada</li>
+                  <li className={styles.listItem}><FaArrowRight/>Built for gifts, weddings, and everyday use</li>
                 </ul>
-
-                <div className={styles.highlight}>
-                  <p>
-                    Every piece is designed to feel personal — because the best gifts
-                    aren’t generic.
-                  </p>
-                </div>
+                
               </div>
             </div>
           </div>

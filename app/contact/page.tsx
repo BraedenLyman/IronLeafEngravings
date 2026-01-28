@@ -57,13 +57,13 @@ export default function ContactPage() {
               </div>
 
               <div className={styles.actions}>
-                <button className={styles.primaryBtn} type="submit">
+                <button className={shared.pBtn} type="submit">
                   Send Message
                 </button>
 
                 {status === "sent" && (
                   <p className={styles.success}>
-                    ✅ Message queued! (Hook up sending next)
+                    Message queued! (Hook up sending next)
                   </p>
                 )}
               </div>

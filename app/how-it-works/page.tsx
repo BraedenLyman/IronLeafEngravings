@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Card, Button } from "antd";
 import Header from "../components/Header/Header";
 import styles from "./how-it-works.module.css";
+import shared from "../shared-page/shared-page.module.css";
 
 const steps = [
   {
@@ -57,13 +58,13 @@ export default function HowItWorksPage() {
 
             <div className={styles.ctaRow}>
               <Link href="/shop">
-                <Button type="primary" className={styles.primaryBtn}>
+                <Button type="primary" className={shared.pBtn}>
                   Start Shopping
                 </Button>
               </Link>
 
               <Link href="/contact">
-                <Button className={styles.secondaryBtn}>More Questions?</Button>
+                <Button className={shared.sBtn}>More Questions?</Button>
               </Link>
             </div>
           </Card>

@@ -76,22 +76,6 @@
   flex-wrap: wrap;
 }
 
-.primaryBtn {
-  height: 46px;
-  padding: 0 24px;
-  border-radius: 12px;
-  font-weight: 900;
-  border: 1px solid rgba(212, 140, 58, 0.9);
-  background: rgba(212, 140, 58, 1);
-  color: #fff;
-  cursor: pointer;
-  box-shadow: 0 10px 25px rgba(212, 140, 58, 0.18);
-}
-
-.primaryBtn:hover {
-  filter: brightness(1.05);
-}
-
 .success {
   margin: 0;
   color: rgba(191, 195, 199, 0.95);

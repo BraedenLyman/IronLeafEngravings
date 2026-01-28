@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import styles from "./product-page.module.css";
+import shared from "../../shared-page/shared-page.module.css";
 import QuantityPicker from "../../components/quantity-picker/quantity-picker";
 import { useCart } from "../../components/cart/CartContext";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -167,7 +168,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
       <div className={styles.actionRow}>
         <button
-          className={styles.secondaryBtn}
+          className={shared.pBtn}
           disabled={!canSubmit}
           onClick={handleAddToCart}
           type="button"
@@ -175,14 +176,16 @@ export default function ProductCustomizer({ product }: { product: Product }) {
           Add to Cart
         </button>
 
+        {/*
         <button
-          className={styles.primaryBtn}
+          className={shared.pBtn}
           disabled={!canSubmit}
           onClick={handleBuyNow}
           type="button"
         >
           {loading ? "Starting checkout..." : "Buy Now"}
         </button>
+        */}
 
         {added && <p className={styles.addedText}>Item added to cart!</p>}
         {!file && <p className={styles.warningText}>Upload an image to continue.</p>}

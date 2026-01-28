@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "./hero.module.css";
+import shared from "../../shared-page/shared-page.module.css";
 import Image from "next/image";
 import Link from "next/link";
 import { Button, Card, Typography } from "antd";
@@ -47,7 +48,7 @@ export default function Hero() {
             <Link href="/shop" className={styles.linkReset}>
               <Button
                 size="large"
-                className={styles.primaryButton}
+                className={shared.pBtn}
                 icon={<FaArrowRight />}
               >
                 Shop Products
@@ -57,7 +58,7 @@ export default function Hero() {
             <Link href="/how-it-works" className={styles.linkReset}>
               <Button
                 size="large"
-                className={styles.secondaryButton}
+                className={shared.sBtn}
                 icon={<FaArrowRight />}
               >
                 How It Works

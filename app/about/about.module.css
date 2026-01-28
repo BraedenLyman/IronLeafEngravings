@@ -32,14 +32,13 @@
 }
 
 .imagePlaceholder {
-  border-radius: 18px;
-  border: 1px dashed rgba(191, 195, 199, 0.25);
-  background: rgba(0, 0, 0, 0.25);
-  min-height: 340px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  width: 100%;
+  min-height: 420px; 
+  border-radius: 16px;
+  overflow: hidden;
 }
+
 
 .imageInner {
   text-align: center;
@@ -76,10 +75,19 @@
 }
 
 .list {
+  display: flex;
+  flex-direction: column;
   margin: 0 0 18px;
   padding-left: 18px;
   color: rgba(191, 195, 199, 0.92);
   line-height: 1.7;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 20px;
 }
 
 .highlight {
