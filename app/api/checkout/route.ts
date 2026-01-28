@@ -1,16 +1,26 @@
 import { NextResponse } from "next/server";
-import { stripe } from "@/app/lib/stripe";
+import Stripe from "stripe";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  const key = process.env.STRIPE_SECRET_KEY;
 
+  if (!key) {
+    return NextResponse.json(
+      { error: "Server misconfigured: missing STRIPE_SECRET_KEY" },
+      { status: 500 }
+    );
+  }
+
+  const stripe = new Stripe(key);
+
+  const body = await req.json();
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://iron-leaf.web.app";
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
-    line_items: body.items.map((i: any) => ({
+    line_items: (body.items ?? []).map((i: any) => ({
       quantity: i.quantity,
       price_data: {
         currency: "cad",
