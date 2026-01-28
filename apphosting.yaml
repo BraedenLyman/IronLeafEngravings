@@ -22,3 +22,12 @@ env:
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: "1:124706414941:web:c6a0baacdf137c3946c8b4"
     availability: [BUILD, RUNTIME]
+
+  - variable: STRIPE_SECRET_KEY
+    secret: STRIPE_SECRET_KEY
+    availability: [BUILD, RUNTIME]
+
+  - variable: STRIPE_WEBHOOK_SECRET
+    secret: STRIPE_WEBHOOK_SECRET
+    availability: [BUILD, RUNTIME]
+
