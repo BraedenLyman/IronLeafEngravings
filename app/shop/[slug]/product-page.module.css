@@ -63,11 +63,24 @@
 }
 
 .list {
+  list-style: none;
+  padding: 0;
   margin: 0;
-  padding-left: 18px;
-  color: rgba(191, 195, 199, 0.92);
-  line-height: 1.7;
 }
+
+.listItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.listIcon {
+  margin-top: 4px;
+  color: var(--btn-accent);
+  flex-shrink: 0;
+}
+
 
 .included {
   margin-top: 14px;
@@ -79,6 +92,7 @@
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
+  width: 270px;
 }
 
 .includedLabel {
@@ -99,9 +113,11 @@
 }
 
 .controls {
+  margin-top: 30px;
   display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 16px;
+  grid-template-columns: minmax(160px, 220px) 1fr;
+  gap: 24px;
+  align-items: start;
 }
 
 .controlBlock {
@@ -121,6 +137,8 @@
   background: rgba(0, 0, 0, 0.25);
   color: rgba(191, 195, 199, 0.95);
   padding: 10px 12px;
+  width: 100%;
+  max-width: 360px;
 }
 
 .fileInput::file-selector-button {
@@ -146,14 +164,17 @@
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid rgba(191, 195, 199, 0.18);
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .previewImg {
   width: 100%;
-  height: 180px;
-  object-fit: cover;
+  height: 220px;          
+  object-fit: contain;     
+  object-position: center;
   display: block;
 }
+
 
 .priceRow {
   margin-top: 14px;

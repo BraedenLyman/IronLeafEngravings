@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { Card, Button } from "antd";
-import Header from "../components/header/header";
+import Header from "../components/Header/Header";
 import styles from "./how-it-works.module.css";
 
 const steps = [
   {
     title: "Pick your piece",
-    content: "Choose the product you want engraved, from coasters to gifts and decor.",
+    content: "Choose the product you want engraved",
   },
   {
     title: "Upload your image",
-    content: "Send a family photo, pet portrait, logo, or artwork you love.",
+    content: "Upold a family photo, pet portrait, logo, or artwork you love.",
   },
   {
     title: "We refine & approve",
@@ -63,7 +63,7 @@ export default function HowItWorksPage() {
               </Link>
 
               <Link href="/contact">
-                <Button className={styles.secondaryBtn}>Questions?</Button>
+                <Button className={styles.secondaryBtn}>More Questions?</Button>
               </Link>
             </div>
           </Card>

@@ -1,4 +1,4 @@
-import Header from "../components/header/header";
+import Header from "../components/Header/Header";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "./shop.module.css";
 import ProductCard from "../components/product-card/product-card";
@@ -21,9 +21,9 @@ export default function ShopPage() {
             <div className={styles.grid}>
               <ProductCard
                 title="Wooden Coasters"
-                description="Real hardwood with a warm finish — perfect for family photos."
+                description="Natural wood with a warm finish — perfect for family photos."
                 price="$29.99"
-                image="/products/wooden-coaster.png"
+                image="/products/wooden-coaster.jpg"
                 href="/shop/wooden-coasters"
               />
 

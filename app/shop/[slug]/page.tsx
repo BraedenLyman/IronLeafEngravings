@@ -1,4 +1,4 @@
-import Header from "../../components/header/header";
+import Header from "../../components/Header/Header";
 import shared from "../../shared-page/shared-page.module.css";
 import { PRODUCT_SLUGS } from "../../lib/products";
 import ProductClient from "./product-client";

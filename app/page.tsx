@@ -1,6 +1,6 @@
-import Header from "@/app/components/header/header";
+import Header from "@/app/components/Header/Header";
 import Footer from "@/app/components/footer/footer";
-import Hero from "./components/hero/hero";
+import Hero from "./components/Hero/Hero";
 import FeatureProduct from "./components/feature-product/feature-product";
 
 

@@ -8,6 +8,7 @@ import shared from "../../shared-page/shared-page.module.css";
 import styles from "./product-page.module.css";
 import ProductBadges from "../../components/product-badges/product-badges";
 import ProductCustomizer from "./product-customizer";
+import { FaArrowRight } from "react-icons/fa";
 
 export default function ProductClient({ slug }: { slug: string }) {
   const [product, setProduct] = useState<Product | null>(null);
@@ -51,12 +52,13 @@ export default function ProductClient({ slug }: { slug: string }) {
   const keyPoints =
     product.slug === "wooden-coasters"
       ? [
-          "Natural hardwood coasters with warm, visible grain.",
-          "Laser-engraved from your photo, logo, or artwork.",
-          "Sealed surface for durability and easy wipe-downs.",
-          "Approximately 4 in x 4 in with smooth rounded edges.",
-          "Set of 4 with protective backing included.",
+          "Turn your favorite photo into a meaningful keepsake you can use every day.",
+          "Custom laser engraving captures fine details for a clean, timeless look.",
+          "Made from real wood with a warm finish that feels natural and premium.",
+          "Sealed for daily use — easy to wipe clean and built to last.",
+          "Perfect gift size with smooth, comfortable edges."
         ]
+
       : product.keyPoints;
 
   return (
@@ -84,7 +86,10 @@ export default function ProductClient({ slug }: { slug: string }) {
                 <h2 className={styles.sectionTitle}>Key points</h2>
                 <ul className={styles.list}>
                   {keyPoints.map((p) => (
-                    <li key={p}>{p}</li>
+                    <li key={p} className={styles.listItem}>
+                      <FaArrowRight className={styles.listIcon} />
+                      {p}
+                    </li>
                   ))}
                 </ul>
               </div>

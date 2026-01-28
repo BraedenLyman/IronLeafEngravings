@@ -134,10 +134,6 @@ export default function ProductCustomizer({ product }: { product: Product }) {
               disabled={loading}
             />
 
-            <p className={styles.helperText}>
-              Required. JPG/PNG recommended. High contrast works best.
-            </p>
-
             {previewUrl && (
               <div className={styles.previewWrap}>
                 <img src={previewUrl} alt="Upload preview" className={styles.previewImg} />

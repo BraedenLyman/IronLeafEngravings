@@ -48,7 +48,8 @@
 
 .heroContent {
   width: 100%;
-  max-width: 640px;
+  max-width: 670px;
+  margin-top: 100px;
   margin-left: clamp(24px, 6vw, 120px);
   padding: 64px 0;
   display: flex;
@@ -62,6 +63,7 @@
     padding: 54px 18px;
     text-align: center;
     align-items: center;
+    margin-top: 70px;
   }
 }
 
@@ -86,6 +88,7 @@
   letter-spacing: -0.03em;
   line-height: 1.05;
   font-size: clamp(34px, 5vw, 56px);
+  width: 670px;
 }
 
 .subtitle {

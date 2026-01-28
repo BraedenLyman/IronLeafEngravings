@@ -36,11 +36,13 @@ export default function Hero() {
             Your Memories,<br />Permanently Engraved
           </h1>
 
+          {/*
           <p className={styles.subtitle}>
             Upload a photo and we’ll engrave it onto real hardwood — perfect for gifts,
             weddings, and home décor.
           </p>
-
+          */}
+          
           <div className={styles.ctas}>
             <Link href="/shop" className={styles.linkReset}>
               <Button
@@ -48,7 +50,7 @@ export default function Hero() {
                 className={styles.primaryButton}
                 icon={<FaArrowRight />}
               >
-                Shop Engraved Products
+                Shop Products
               </Button>
             </Link>
 
@@ -63,7 +65,7 @@ export default function Hero() {
             </Link>
           </div>
 
-          {/* BADGES */}
+          {/* 
           <Card className={styles.badgeCard} variant="borderless">
             <div className={styles.badgeRow}>
               <div className={styles.badgePill}>
@@ -82,6 +84,7 @@ export default function Hero() {
               </div>
             </div>
           </Card>
+          */}
         </div>
       </div>
     </section>

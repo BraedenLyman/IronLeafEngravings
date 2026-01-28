@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./product-card.module.css";
+import { FaArrowRight } from "react-icons/fa";
 
 interface ProductCardProps {
   title: string;
@@ -34,7 +35,7 @@ export default function ProductCard({
 
         <div className={styles.footer}>
           <span className={styles.price}>{price}</span>
-          <span className={styles.cta}>Customize →</span>
+          <span className={styles.cta}>Customize<FaArrowRight/></span>
         </div>
       </div>
     </Link>
