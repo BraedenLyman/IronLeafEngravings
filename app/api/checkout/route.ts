@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getStripe } from "@/app/lib/stripe";
+import admin from "firebase-admin";
 
 export const runtime = "nodejs";
 
@@ -23,23 +24,43 @@ type BuyNowBody = {
   uploadedFileName?: string;
 };
 
+function getAdmin() {
+  if (!admin.apps.length) {
+    admin.initializeApp();
+  }
+  return admin;
+}
+
 export async function POST(req: Request) {
   try {
     const stripe = getStripe();
-
     const body = (await req.json()) as Partial<CartBody & BuyNowBody>;
 
-    // Build origin safely (works on App Hosting + local)
     const origin =
       req.headers.get("origin") ??
       process.env.NEXT_PUBLIC_APP_URL ??
       "http://localhost:3000";
 
-    // -------------------------
-    // CART CHECKOUT (items[])
-    // -------------------------
     if (Array.isArray(body.items) && body.items.length > 0) {
       const items = body.items;
+
+      const adminApp = getAdmin();
+      const db = adminApp.firestore();
+
+      const pendingRef = db.collection("pendingCheckouts").doc();
+      await pendingRef.set({
+        createdAt: adminApp.firestore.FieldValue.serverTimestamp(),
+        status: "pending",
+        type: "cart",
+        productSlug: body.productSlug ?? "cart",
+        uploadedFileName: body.uploadedFileName ?? "",
+        imageUrl: body.imageUrl ?? "",
+        items: items.map((i) => ({
+          name: i.name,
+          quantity: i.quantity,
+          priceInCents: i.priceInCents,
+        })),
+      });
 
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
@@ -56,30 +77,25 @@ export async function POST(req: Request) {
         shipping_address_collection: { allowed_countries: ["CA", "US"] },
         phone_number_collection: { enabled: true },
 
+        customer_creation: "always",
+
         success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/cart`,
 
         metadata: {
+          pendingOrderId: pendingRef.id,
           productSlug: body.productSlug ?? "cart",
-          uploadedFileName: body.uploadedFileName ?? "",
-          imageUrl: body.imageUrl ?? "",
         },
       });
 
       return NextResponse.json({ url: session.url });
     }
 
-    // -------------------------
-    // BUY NOW CHECKOUT (slug)
-    // -------------------------
     const slug = (body.slug ?? "").trim();
     if (!slug) {
       return NextResponse.json({ error: "Missing slug" }, { status: 400 });
     }
 
-    // If you still want Buy Now to use Firestore price IDs,
-    // keep your db lookup here. If you don't, you'd need to
-    // pass price info like cart does.
     return NextResponse.json(
       { error: "Buy Now not wired up yet (no cart items sent)" },
       { status: 400 }

@@ -84,7 +84,6 @@ export default function CartPage() {
           </div>
         </div>
 
-        {/* EMPTY STATE */}
         {items.length === 0 ? (
           <div className={styles.emptyCard}>
             <div className={styles.emptyIcon} aria-hidden />

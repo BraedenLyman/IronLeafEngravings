@@ -93,8 +93,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
       await uploadBytes(fileRef, file);
       const imageUrl = await getDownloadURL(fileRef);
 
-      // 2) Call Firebase Function (Stripe Checkout Session)
-      // Use same-origin endpoint to avoid CORS
+  
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

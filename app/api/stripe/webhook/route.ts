@@ -1,93 +1,125 @@
+import Stripe from "stripe";
 import { NextResponse } from "next/server";
+import admin from "firebase-admin";
 import { getStripe } from "@/app/lib/stripe";
-import { getDb } from "@/app/lib/firebaseAdmin";
-import type Stripe from "stripe";
 
 export const runtime = "nodejs";
 
+function getAdmin() {
+  if (!admin.apps.length) admin.initializeApp();
+  return admin;
+}
+
+type SessionWithShipping = Stripe.Checkout.Session & {
+  shipping_details?: {
+    name?: string | null;
+    address?: Stripe.Address | null;
+  } | null;
+  customer_details?: {
+    email?: string | null;
+    name?: string | null;
+    phone?: string | null;
+    address?: Stripe.Address | null;
+  } | null;
+};
+
 export async function POST(req: Request) {
+  const stripe = getStripe();
+
   const sig = req.headers.get("stripe-signature");
-  if (!sig) {
-    return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
-  }
+  if (!sig) return NextResponse.json({ error: "Missing signature" }, { status: 400 });
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     return NextResponse.json({ error: "Missing STRIPE_WEBHOOK_SECRET" }, { status: 500 });
   }
 
-  const payload = await req.text();
-  const stripe = getStripe();
-  const db = getDb();
   let event: Stripe.Event;
+
   try {
-    event = stripe.webhooks.constructEvent(payload, sig, webhookSecret);
+    const rawBody = await req.text();
+    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err: any) {
-    return NextResponse.json(
-      { error: `Webhook signature verification failed: ${err.message}` },
-      { status: 400 }
-    );
+    console.error("Webhook signature verification failed:", err?.message);
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+    const sessionFromEvent = event.data.object as Stripe.Checkout.Session;
 
-    if (session.payment_status === "paid") {
-      const full = await stripe.checkout.sessions.retrieve(session.id, {
-        expand: ["line_items", "customer_details"],
-      });
+    // Re-fetch session (more reliable than event payload typing)
+    const session = (await stripe.checkout.sessions.retrieve(sessionFromEvent.id)) as SessionWithShipping;
 
-      const cd = full.customer_details;
-      const md = full.metadata ?? {};
+    if (session.payment_status !== "paid") {
+      return NextResponse.json({ received: true, ignored: "not_paid" });
+    }
 
-      const shipping =
-        cd?.address
-          ? {
-              name: cd.name ?? "",
-              email: cd.email ?? "",
-              phone: cd.phone ?? "",
-              address: {
-                line1: cd.address.line1 ?? "",
-                line2: cd.address.line2 ?? "",
-                city: cd.address.city ?? "",
-                state: cd.address.state ?? "",
-                postal_code: cd.address.postal_code ?? "",
-                country: cd.address.country ?? "",
-              },
-            }
-          : null;
+    const adminApp = getAdmin();
+    const db = adminApp.firestore();
 
-      const lineItems =
-        full.line_items?.data?.map((li) => ({
-          description: li.description ?? "",
-          quantity: li.quantity ?? 0,
-          amountTotal: li.amount_total ?? 0,
-          currency: li.currency ?? "cad",
-          priceId: li.price?.id ?? null,
-        })) ?? [];
+    const pendingOrderId = session.metadata?.pendingOrderId ?? null;
+    const orderRef = db.collection("orders").doc(session.id);
+    const existing = await orderRef.get();
 
-      await db.collection("orders").doc(full.id).set({
-        createdAt: new Date(),
-        status: "paid",
+    if (existing.exists) {
+      return NextResponse.json({ received: true, deduped: true });
+    }
 
-        amount: full.amount_total,
-        currency: full.currency,
+    const shipping = session.shipping_details;
+    const customerDetails = session.customer_details;
+    const stripeCustomerId = typeof session.customer === "string" ? session.customer : null;
 
-        stripe: {
-          sessionId: full.id,
-          paymentIntent: full.payment_intent ?? null,
+    let pendingData: any = null;
+    if (pendingOrderId) {
+      const pendingSnap = await db.collection("pendingCheckouts").doc(pendingOrderId).get();
+      pendingData = pendingSnap.exists ? pendingSnap.data() : null;
+    }
+
+    if (stripeCustomerId) {
+      await db.collection("customers").doc(stripeCustomerId).set(
+        {
+          stripeCustomerId,
+          email: customerDetails?.email ?? "",
+          name: customerDetails?.name ?? "",
+          phone: customerDetails?.phone ?? "",
+          shipping: shipping ? { name: shipping.name ?? "", address: shipping.address ?? {} } : null,
+          updatedAt: adminApp.firestore.FieldValue.serverTimestamp(),
         },
+        { merge: true }
+      );
+    }
 
-        shipping,
-        lineItems,
+    await orderRef.set({
+      createdAt: adminApp.firestore.FieldValue.serverTimestamp(),
+      stripeSessionId: session.id,
+      stripeCustomerId,
+      amountTotal: session.amount_total ?? null,
+      currency: session.currency ?? null,
+      paymentStatus: session.payment_status ?? "unknown",
 
-        order: {
-          slug: md.slug ?? "",
-          quantity: Number(md.quantity ?? "1"),
-          uploadedImageUrl: md.uploadedImageUrl ?? "",
-          uploadedFileName: md.uploadedFileName ?? "",
+      pendingOrderId,
+      productSlug: pendingData?.productSlug ?? session.metadata?.productSlug ?? "",
+      uploadedFileName: pendingData?.uploadedFileName ?? "",
+      imageUrl: pendingData?.imageUrl ?? "",
+      items: pendingData?.items ?? [],
+
+      customer: {
+        email: customerDetails?.email ?? "",
+        name: customerDetails?.name ?? "",
+        phone: customerDetails?.phone ?? "",
+      },
+      shipping: shipping ? { name: shipping.name ?? "", address: shipping.address ?? {} } : null,
+    });
+
+    if (pendingOrderId) {
+      await db.collection("pendingCheckouts").doc(pendingOrderId).set(
+        {
+          status: "completed",
+          completedAt: adminApp.firestore.FieldValue.serverTimestamp(),
+          stripeSessionId: session.id,
         },
-      });
+        { merge: true }
+      );
     }
   }
 
