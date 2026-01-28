@@ -40,20 +40,22 @@ export async function POST(req: Request) {
       );
     }
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.APP_BASE_URL ||
-      "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
     const successUrl = `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/shop/${encodeURIComponent(slug)}`;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: product.stripePriceId, quantity }],
-        shipping_address_collection: {
+
+      billing_address_collection: "auto",
+
+      shipping_address_collection: {
         allowed_countries: ["CA", "US"],
       },
+
       phone_number_collection: { enabled: true },
+
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata: {
@@ -63,6 +65,7 @@ export async function POST(req: Request) {
         uploadedFileName: body.uploadedFileName ?? "",
       },
     });
+
 
     console.log("Session created:", session.id, "shipping:", session.shipping_address_collection);
 
