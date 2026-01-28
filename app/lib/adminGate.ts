@@ -3,21 +3,19 @@ import { adminAuth } from "./firebaseAdmin";
 
 export async function requireAdmin() {
   const cookieStore = await cookies();
-  const token = cookieStore.get("fb_token")?.value;
+  const token = cookieStore.get("__session")?.value;
 
   if (!token) return { ok: false as const, reason: "no_token" };
 
-  const decoded = await adminAuth.verifyIdToken(token);
-  const email = decoded.email ?? "";
+  try {
+    const decoded = await adminAuth.verifyIdToken(token);
 
-  const allow = (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
+    if (decoded.admin !== true) {
+      return { ok: false as const, reason: "not_admin" };
+    }
 
-  if (!email || !allow.includes(email.toLowerCase())) {
-    return { ok: false as const, reason: "not_allowed" };
+    return { ok: true as const, email: decoded.email ?? "" };
+  } catch {
+    return { ok: false as const, reason: "bad_token" };
   }
-
-  return { ok: true as const, email };
 }

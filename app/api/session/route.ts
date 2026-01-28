@@ -6,7 +6,7 @@ export async function POST(req: Request) {
 
   const res = NextResponse.json({ ok: true });
 
-  res.cookies.set("fb_token", idToken, {
+  res.cookies.set("__session", idToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -19,6 +19,6 @@ export async function POST(req: Request) {
 
 export async function DELETE() {
   const res = NextResponse.json({ ok: true });
-  res.cookies.set("fb_token", "", { path: "/", maxAge: 0 });
+  res.cookies.set("__session", "", { path: "/", maxAge: 0 });
   return res;
 }

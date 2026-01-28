@@ -32,6 +32,7 @@ export default function AdminLoginPage() {
 
       const r = await fetch("/api/session", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken }),
       });
@@ -54,7 +55,7 @@ export default function AdminLoginPage() {
     setMsg("");
     try {
       await signOut(auth);
-      await fetch("/api/session", { method: "DELETE" });
+      await fetch("/api/session", { method: "DELETE", credentials: "include" });
       setPassword("");
       setMsg("Signed out.");
     } catch (err: any) {
