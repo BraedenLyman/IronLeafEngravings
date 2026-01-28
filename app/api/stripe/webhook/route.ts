@@ -46,8 +46,6 @@ export async function POST(req: Request) {
 
   if (event.type === "checkout.session.completed") {
     const sessionFromEvent = event.data.object as Stripe.Checkout.Session;
-
-    // Re-fetch session (more reliable than event payload typing)
     const session = (await stripe.checkout.sessions.retrieve(sessionFromEvent.id)) as SessionWithShipping;
 
     if (session.payment_status !== "paid") {
