@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getStripe } from "@/app/lib/stripe";
-import { db } from "@/app/lib/firebaseAdmin";
+import { getDb } from "@/app/lib/firebaseAdmin";
 import type Stripe from "stripe";
 
 export const runtime = "nodejs";
@@ -17,10 +17,8 @@ export async function POST(req: Request) {
   }
 
   const payload = await req.text();
-
-  // ✅ create stripe client before using it
   const stripe = getStripe();
-
+  const db = getDb();
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(payload, sig, webhookSecret);

@@ -1,21 +1,11 @@
-import { getApps, initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import admin from "firebase-admin";
 
-const projectId = process.env.FIREBASE_PROJECT_ID;
-const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-
-if (!projectId || !clientEmail || !privateKey) {
-  throw new Error("Missing Firebase Admin env vars");
+function initAdmin() {
+  if (admin.apps.length) return;
+  admin.initializeApp();
 }
 
-privateKey = privateKey.replace(/\\n/g, "\n");
-
-const app =
-  getApps().length
-    ? getApps()[0]
-    : initializeApp({
-        credential: cert({ projectId, clientEmail, privateKey }),
-      });
-
-export const db = getFirestore(app);
+export function getDb() {
+  initAdmin();
+  return admin.firestore();
+}

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/app/lib/firebaseAdmin";
+import { getDb } from "@/app/lib/firebaseAdmin";
 import { getStripe } from "@/app/lib/stripe";
 
 export const runtime = "nodejs";
@@ -13,6 +13,8 @@ type Body = {
 
 export async function POST(req: Request) {
   try {
+    const db = getDb();
+    const stripe = getStripe();
     const body = (await req.json()) as Body;
     const slug = body.slug?.trim();
     const quantity = Math.max(1, Math.min(99, Number(body.quantity ?? 1)));
@@ -44,8 +46,6 @@ export async function POST(req: Request) {
       "http://localhost:3000";
     const successUrl = `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/shop/${encodeURIComponent(slug)}`;
-
-    const stripe = getStripe();
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
