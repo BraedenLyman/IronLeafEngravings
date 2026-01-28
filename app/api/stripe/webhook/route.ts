@@ -56,13 +56,6 @@ export async function POST(req: Request) {
     const db = adminApp.firestore();
 
     const pendingOrderId = session.metadata?.pendingOrderId ?? null;
-    const orderRef = db.collection("orders").doc(session.id);
-    const existing = await orderRef.get();
-
-    if (existing.exists) {
-      return NextResponse.json({ received: true, deduped: true });
-    }
-
     const shipping = session.shipping_details;
     const customerDetails = session.customer_details;
     const stripeCustomerId = typeof session.customer === "string" ? session.customer : null;
@@ -73,6 +66,22 @@ export async function POST(req: Request) {
       pendingData = pendingSnap.exists ? pendingSnap.data() : null;
     }
 
+    const uploadedUrl =
+      pendingData?.imageUrl ??
+      pendingData?.uploadedImageUrl ??
+      pendingData?.items?.find((it: any) => it?.uploadedImageUrl || it?.imageUrl)?.uploadedImageUrl ??
+      pendingData?.items?.find((it: any) => it?.uploadedImageUrl || it?.imageUrl)?.imageUrl ??
+      "";
+
+    const pendingShipping = pendingData?.shipping ?? null;
+    const shippingFromStripe = shipping
+      ? { name: shipping.name ?? "", address: shipping.address ?? {} }
+      : null;
+    const shippingFromCustomer = customerDetails?.address
+      ? { name: customerDetails?.name ?? "", address: customerDetails.address }
+      : null;
+    const shippingToStore = shippingFromStripe ?? pendingShipping ?? shippingFromCustomer;
+
     if (stripeCustomerId) {
       await db.collection("customers").doc(stripeCustomerId).set(
         {
@@ -80,18 +89,29 @@ export async function POST(req: Request) {
           email: customerDetails?.email ?? "",
           name: customerDetails?.name ?? "",
           phone: customerDetails?.phone ?? "",
-          shipping: shipping ? { name: shipping.name ?? "", address: shipping.address ?? {} } : null,
+          shipping: shippingToStore,
           updatedAt: adminApp.firestore.FieldValue.serverTimestamp(),
         },
         { merge: true }
       );
     }
-    const uploadedUrl =
-      pendingData?.imageUrl ??
-      pendingData?.uploadedImageUrl ??
-      pendingData?.items?.find((it: any) => it?.uploadedImageUrl || it?.imageUrl)?.uploadedImageUrl ??
-      pendingData?.items?.find((it: any) => it?.uploadedImageUrl || it?.imageUrl)?.imageUrl ??
-      "";
+
+    const orderRef = db.collection("orders").doc(session.id);
+    const existing = await orderRef.get();
+    if (existing.exists) {
+      const existingData = existing.data() as any;
+      if (!existingData?.shipping && shippingToStore) {
+        await orderRef.update({
+          shipping: shippingToStore,
+          customer: {
+            email: existingData?.customer?.email ?? customerDetails?.email ?? pendingShipping?.email ?? "",
+            name: existingData?.customer?.name ?? customerDetails?.name ?? pendingShipping?.name ?? "",
+            phone: existingData?.customer?.phone ?? customerDetails?.phone ?? pendingShipping?.phone ?? "",
+          },
+        });
+      }
+      return NextResponse.json({ received: true, deduped: true });
+    }
     
     await orderRef.set({
       
@@ -110,11 +130,11 @@ export async function POST(req: Request) {
       items: pendingData?.items ?? [],
 
       customer: {
-        email: customerDetails?.email ?? "",
-        name: customerDetails?.name ?? "",
-        phone: customerDetails?.phone ?? "",
+        email: customerDetails?.email ?? pendingShipping?.email ?? "",
+        name: customerDetails?.name ?? pendingShipping?.name ?? "",
+        phone: customerDetails?.phone ?? pendingShipping?.phone ?? "",
       },
-      shipping: shipping ? { name: shipping.name ?? "", address: shipping.address ?? {} } : null,
+      shipping: shippingToStore,
     });
 
     if (pendingOrderId) {

@@ -18,6 +18,17 @@ type CartBody = {
   uploadedFileName?: string;
   imageUrl?: string;
   uploadedImageUrl?: string;
+  shipping?: {
+    fullName: string;
+    email: string;
+    phone: string;
+    address1: string;
+    address2: string;
+    city: string;
+    province: string;
+    postalCode: string;
+    country: string;
+  };
 };
 
 type BuyNowBody = {
@@ -39,10 +50,7 @@ export async function POST(req: Request) {
     const stripe = getStripe();
     const body = (await req.json()) as Partial<CartBody & BuyNowBody>;
 
-    const origin =
-      req.headers.get("origin") ??
-      process.env.NEXT_PUBLIC_APP_URL ??
-      "http://localhost:3000";
+    const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
     if (Array.isArray(body.items) && body.items.length > 0) {
       const items = body.items;
@@ -57,6 +65,22 @@ export async function POST(req: Request) {
       const uploadedUrl = String(body.uploadedImageUrl ?? body.imageUrl ?? itemImageUrl ?? "");
 
       const pendingRef = db.collection("pendingCheckouts").doc();
+      const shipping = body.shipping ?? null;
+      const pendingShipping = shipping
+        ? {
+            name: shipping.fullName ?? "",
+            email: shipping.email ?? "",
+            phone: shipping.phone ?? "",
+            address: {
+              line1: shipping.address1 ?? "",
+              line2: shipping.address2 ?? "",
+              city: shipping.city ?? "",
+              state: shipping.province ?? "",
+              postal_code: shipping.postalCode ?? "",
+              country: shipping.country ?? "",
+            },
+          }
+        : null;
       await pendingRef.set({
         createdAt: adminApp.firestore.FieldValue.serverTimestamp(),
         status: "pending",
@@ -65,6 +89,7 @@ export async function POST(req: Request) {
         uploadedFileName: body.uploadedFileName ?? "",
         imageUrl: uploadedUrl,
         uploadedImageUrl: uploadedUrl,
+        shipping: pendingShipping,
         items: items.map((i) => ({
           name: i.name,
           quantity: i.quantity,

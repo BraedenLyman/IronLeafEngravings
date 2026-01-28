@@ -33,6 +33,13 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
   cancelled: "Cancelled",
 };
 
+const STATUS_ACCENT: Record<OrderStatus, { border: string; background: string; badge: string }> = {
+  new: { border: "#2b6de6", background: "#0d1526", badge: "#1a2b4d" },
+  in_progress: { border: "#f0b429", background: "#1f1706", badge: "#3a2b0a" },
+  shipped: { border: "#34c759", background: "#0d1c12", badge: "#14311d" },
+  cancelled: { border: "#ef4444", background: "#220c0c", badge: "#3a1414" },
+};
+
 export default async function AdminOrdersPage() {
   const gate = await requireAdmin();
   if (!gate.ok) redirect("/admin/login");
@@ -107,11 +114,44 @@ export default async function AdminOrdersPage() {
             const list = groups[statusKey];
             if (!list.length) return null;
 
+            const accent = STATUS_ACCENT[statusKey];
+
             return (
-              <section key={statusKey} style={{ marginBottom: 18 }}>
-                <div style={sectionTitleStyle}>
-                  {STATUS_LABEL[statusKey]}
-                  <span style={badgeStyle}>{list.length}</span>
+              <section
+                key={statusKey}
+                style={{
+                  marginBottom: 18,
+                  padding: 12,
+                  borderRadius: 14,
+                  border: `1px solid ${accent.border}`,
+                  background: accent.background,
+                }}
+              >
+                <div
+                  style={{
+                    ...sectionTitleStyle,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: "6px 10px",
+                    borderRadius: 10,
+                    background: "rgba(0,0,0,0.25)",
+                    border: `1px solid ${accent.border}`,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: 999,
+                      background: accent.border,
+                      boxShadow: `0 0 12px ${accent.border}`,
+                    }}
+                  />
+                  <span>{STATUS_LABEL[statusKey]}</span>
+                  <span style={{ ...badgeStyle, background: accent.badge, borderColor: accent.border }}>
+                    {list.length}
+                  </span>
                 </div>
 
                 <div style={{ display: "grid", gap: 12 }}>
@@ -120,32 +160,35 @@ export default async function AdminOrdersPage() {
                       o.createdAt?.toDate?.()?.toLocaleString?.() ??
                       (o.createdAt ? String(o.createdAt) : "—");
 
-                    const shipping = (() => {
-                      const addr = o?.shipping?.address || o?.shipping || null;
-                      if (!addr) return "—";
+                    const shippingAddr = o?.shipping?.address || o?.shipping || null;
+                    const shippingLines = (() => {
+                      if (!shippingAddr) return [];
 
-                      const line1 = addr.line1 ?? "";
-                      const line2 = addr.line2 ? `, ${addr.line2}` : "";
-                      const city = addr.city ?? "";
-                      const province = addr.state ?? addr.province ?? "";
-                      const postal = addr.postal_code ?? addr.postal ?? "";
-                      const country = addr.country ?? "";
+                      const line1 = shippingAddr.line1 ?? "";
+                      const line2 = shippingAddr.line2 ?? "";
+                      const city = shippingAddr.city ?? "";
+                      const province = shippingAddr.state ?? shippingAddr.province ?? "";
+                      const postal = shippingAddr.postal_code ?? shippingAddr.postal ?? "";
+                      const country = shippingAddr.country ?? "";
 
-                      const parts = [
-                        `${line1}${line2}`.trim(),
-                        city,
-                        [province, postal].filter(Boolean).join(" ").trim(),
-                        country,
-                      ].filter(Boolean);
+                      const cityLine = [city, [province, postal].filter(Boolean).join(" ").trim()]
+                        .filter(Boolean)
+                        .join(", ");
 
-                      return parts.join(", ") || "—";
+                      return [line1, line2, cityLine, country].filter(
+                        (line) => line && String(line).trim()
+                      );
                     })();
+                    const shippingInline = shippingLines.join(", ") || "N/A";
+                    const shippingName = o?.shipping?.name || o?.customer?.name || "N/A";
+                    const shippingEmail = o?.customer?.email || "N/A";
+                    const shippingPhone = o?.customer?.phone || "N/A";
 
                     const items: Array<any> = Array.isArray(o.items) ? o.items : [];
 
                     const thumbUrl =  o.imageUrl || o.uploadedImageUrl || items.find((it) => it?.imageUrl)?.imageUrl || items.find((it) => it?.uploadedImageUrl)?.uploadedImageUrl || "";
 
-                    const downloadHref = `/api/admin/orders/${o.id}/download`;
+                    const downloadHref = `/admin/orders/${o.id}/download`;
 
                     return (
                       <div
@@ -222,7 +265,11 @@ export default async function AdminOrdersPage() {
                                 {o.customer?.name ?? "Customer"} — {o.customer?.email ?? "—"}
                               </div>
                               <div style={{ opacity: 0.8, fontSize: 13 }}>Order date: {created}</div>
-                              <div style={{ opacity: 0.8, fontSize: 13 }}>Ship to: {shipping}</div>
+                              <div style={{ opacity: 0.8, fontSize: 13 }}>Ship to: {shippingInline}</div>
+                              <div style={{ opacity: 0.8, fontSize: 13 }}>Recipient: {shippingName}</div>
+                              <div style={{ opacity: 0.8, fontSize: 13 }}>
+                                Contact: {shippingEmail}{shippingPhone !== "N/A" ? ` | ${shippingPhone}` : ""}
+                              </div>
                               <div style={{ opacity: 0.7, fontSize: 12 }}>Order ID: {o.id}</div>
                             </div>
 
