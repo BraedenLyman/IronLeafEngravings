@@ -8,6 +8,7 @@ import shared from "../../shared-page/shared-page.module.css";
 import styles from "./product-page.module.css";
 import ProductBadges from "../../components/product-badges/product-badges";
 import ProductCustomizer from "./product-customizer";
+import { Carousel } from "antd";
 import { FaArrowRight } from "react-icons/fa";
 
 export default function ProductClient({ slug }: { slug: string }) {
@@ -100,11 +101,22 @@ export default function ProductClient({ slug }: { slug: string }) {
             <div className={styles.imageStack}>
               <div className={styles.previewWrap}>
                 <div className={styles.previewMockup}>
-                  <img
-                    src={product.image}
-                    alt={product.title}
-                    className={styles.previewBase}
-                  />
+                  {product.slug === "wooden-coasters" ? (
+                    <Carousel dots draggable autoplay autoplaySpeed={3500} pauseOnHover className={styles.carousel}>
+                      {[product.image, "/products/wooden-coaster-2.jpg", "/products/wooden-coaster-3.jpg"].map(
+                        (src) => (
+                          <div key={src} className={styles.carouselSlide}>
+                            <img src={src} alt={product.title} className={styles.previewBase} />
+                          </div>
+                        )
+                      )}
+                    </Carousel>
+                  ) : (
+                    <img
+                      src={product.image}
+                      alt={product.title}
+                    />
+                  )}
                 </div>
               </div>
 
