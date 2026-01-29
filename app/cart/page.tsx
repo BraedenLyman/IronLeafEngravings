@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useCart } from "../components/cart/CartContext";
 import { Button } from "antd";
+import { FaArrowDown } from "react-icons/fa";
 
 function formatMoney(cents: number) {
   return `$${(cents / 100).toFixed(2)}`;
@@ -118,16 +119,17 @@ export default function CartPage() {
                 {items.map((i) => {
                   const qty = i.quantity ?? 0;
                   const lineTotal = i.unitPriceCents * qty;
-                  const previewUrl = i.imagePreviewUrl ?? i.uploadedImageUrl;
+                  const productThumb = i.productImageUrl ?? i.imagePreviewUrl ?? i.uploadedImageUrl;
+                  const uploadedPreview = i.uploadedImageUrl ?? i.imagePreviewUrl;
 
                   return (
                     <div className={styles.item} key={i.id}>
                       <div className={styles.thumbWrap}>
-                        {previewUrl ? (
+                        {productThumb ? (
                           <img
                             className={styles.thumb}
-                            src={previewUrl}
-                            alt={`${i.title} preview`}
+                            src={productThumb}
+                            alt={`${i.title} product`}
                             loading="lazy"
                           />
                         ) : (
@@ -164,6 +166,33 @@ export default function CartPage() {
                             </>
                           ) : null}
                         </div>
+
+                        {uploadedPreview ? (
+                          <details className={styles.uploadDetails}>
+                            <summary className={styles.uploadSummary}>
+                              
+                              Uploaded Image
+                              <span className={styles.uploadSummaryIcon} aria-hidden="true">
+                                <FaArrowDown />
+                              </span>
+                            </summary>
+                            <div className={styles.uploadContent}>
+                              <div className={styles.uploadThumbWrap}>
+                                <img
+                                  className={styles.uploadThumb}
+                                  src={uploadedPreview}
+                                  alt={`${i.title} uploaded preview`}
+                                  loading="lazy"
+                                />
+                              </div>
+                              {i.uploadedFileName ? (
+                                <div className={styles.uploadFileName} title={i.uploadedFileName}>
+                                  File: {i.uploadedFileName}
+                                </div>
+                              ) : null}
+                            </div>
+                          </details>
+                        ) : null}
 
                         <div className={styles.itemActions}>
                           <button

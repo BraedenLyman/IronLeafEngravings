@@ -9,6 +9,7 @@ export type CartItem = {
   unitPriceCents: number;
   quantity: number;
   included: string;
+  productImageUrl?: string;
   imagePreviewUrl?: string;
   uploadedImageUrl?: string;
   uploadedFileName?: string;
@@ -29,7 +30,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const raw = localStorage.getItem("ironleaf_cart");
-    if (raw) setItems(JSON.parse(raw));
+    if (raw) {
+      const parsed = JSON.parse(raw) as CartItem[];
+      const cleaned = parsed.map((item) => {
+        const preview = item.imagePreviewUrl;
+        const keepPreview =
+          preview && !(preview.startsWith("blob:") || preview.startsWith("data:"));
+        return {
+          ...item,
+          imagePreviewUrl: keepPreview ? preview : undefined,
+        };
+      });
+      setItems(cleaned);
+    }
   }, []);
 
   useEffect(() => {

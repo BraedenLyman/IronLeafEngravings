@@ -73,6 +73,7 @@ export default function ProductCustomizer({
         unitPriceCents: product.priceCents,
         quantity: qty,
         included: product.included,
+        productImageUrl: product.image,
         imagePreviewUrl: previewUrl,
         uploadedImageUrl: imageUrl,
         uploadedFileName: file.name,

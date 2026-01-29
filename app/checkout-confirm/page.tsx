@@ -248,22 +248,42 @@ export default function CheckoutConfirmPage() {
                 <h2 className={styles.summaryTitle}>Order summary</h2>
 
                 <div className={styles.summaryList}>
-                  {items.map((i) => (
-                    <div key={i.id} className={styles.summaryItem}>
-                      <div className={styles.summaryLeft}>
-                        <div className={styles.summaryName}>{i.title}</div>
-                        <div className={styles.summaryMeta}>Qty {i.quantity}</div>
-                        {i.uploadedFileName ? (
-                          <div className={styles.summaryMeta}>
-                            File: {i.uploadedFileName}
-                          </div>
-                        ) : null}
+                  {items.map((i) => {
+                    const thumb =
+                      i.productImageUrl ??
+                      i.imagePreviewUrl ??
+                      i.uploadedImageUrl ??
+                      "";
+
+                    return (
+                      <div key={i.id} className={styles.summaryItem}>
+                        <div className={styles.summaryThumbWrap}>
+                          {thumb ? (
+                            <img
+                              className={styles.summaryThumb}
+                              src={thumb}
+                              alt={`${i.title} product`}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className={styles.summaryThumbPlaceholder} aria-hidden />
+                          )}
+                        </div>
+                        <div className={styles.summaryLeft}>
+                          <div className={styles.summaryName}>{i.title}</div>
+                          <div className={styles.summaryMeta}>Qty {i.quantity}</div>
+                          {i.uploadedFileName ? (
+                            <div className={styles.summaryMeta}>
+                              File: {i.uploadedFileName}
+                            </div>
+                          ) : null}
+                        </div>
+                        <div className={styles.summaryRight}>
+                          {formatMoney(i.unitPriceCents * i.quantity)}
+                        </div>
                       </div>
-                      <div className={styles.summaryRight}>
-                        {formatMoney(i.unitPriceCents * i.quantity)}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className={styles.divider} />

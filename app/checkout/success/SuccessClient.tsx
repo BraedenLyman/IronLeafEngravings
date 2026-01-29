@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./success.module.css";
 import { FaCheck, FaRegCopy } from "react-icons/fa";
+import { useCart } from "@/app/components/cart/CartContext";
 
 function shortId(id: string) {
   if (id.length <= 14) return id;
@@ -17,6 +18,7 @@ export default function SuccessClient() {
   const [copied, setCopied] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [loadingOrderId, setLoadingOrderId] = useState(false);
+  const { clear } = useCart();
 
   if (!session_id) {
     return (
@@ -62,6 +64,8 @@ export default function SuccessClient() {
   useEffect(() => {
     if (!session_id) return;
     let cancelled = false;
+
+    clear();
 
     const load = async () => {
       setLoadingOrderId(true);
