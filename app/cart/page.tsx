@@ -1,6 +1,6 @@
 "use client";
 
-import Header from "../components/Header/Header";
+import Header from "../components/header/Header";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "./cart.module.css";
 import Link from "next/link";

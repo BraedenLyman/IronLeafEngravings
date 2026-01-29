@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import Header from "../components/Header/Header";
+import Header from "../components/header/Header";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "./checkout-confirm.module.css";
 import { useCart } from "../components/cart/CartContext";

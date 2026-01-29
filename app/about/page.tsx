@@ -1,5 +1,5 @@
 import { FaArrowRight } from "react-icons/fa";
-import Header from "../components/Header/Header";
+import Header from "../components/header/Header";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "./about.module.css";
 import Image from "next/image";

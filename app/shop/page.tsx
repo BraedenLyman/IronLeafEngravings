@@ -1,4 +1,4 @@
-import Header from "../components/Header/Header";
+import Header from "../components/header/Header";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "./shop.module.css";
 import ProductCard from "../components/product-card/product-card";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Header from "../components/Header/Header";
+import Header from "../components/header/Header";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "./contact.module.css";
 import Footer from "../components/footer/footer";

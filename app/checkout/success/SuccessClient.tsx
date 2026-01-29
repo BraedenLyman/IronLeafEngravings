@@ -2,19 +2,21 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./success.module.css";
 import { FaCheck, FaRegCopy } from "react-icons/fa";
 
 function shortId(id: string) {
   if (id.length <= 14) return id;
-  return `${id.slice(0, 8)}â€¦${id.slice(-6)}`;
+  return `${id.slice(0, 8)}...${id.slice(-6)}`;
 }
 
 export default function SuccessClient() {
   const searchParams = useSearchParams();
   const session_id = searchParams.get("session_id");
   const [copied, setCopied] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [loadingOrderId, setLoadingOrderId] = useState(false);
 
   if (!session_id) {
     return (
@@ -46,15 +48,45 @@ export default function SuccessClient() {
   }
 
   const handleCopy = async () => {
-    if (!session_id) return;
+    const value = orderId || session_id;
+    if (!value) return;
     try {
-      await navigator.clipboard.writeText(session_id);
+      await navigator.clipboard.writeText(value);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
       setCopied(false);
     }
   };
+
+  useEffect(() => {
+    if (!session_id) return;
+    let cancelled = false;
+
+    const load = async () => {
+      setLoadingOrderId(true);
+      try {
+        const res = await fetch(`/api/orders/by-session?session_id=${encodeURIComponent(session_id)}`);
+        if (!res.ok) return;
+        const data = (await res.json()) as { orderId?: string | null };
+        if (!cancelled && data.orderId) {
+          setOrderId(String(data.orderId));
+        }
+      } catch {
+        // ignore lookup errors for now
+      } finally {
+        if (!cancelled) setLoadingOrderId(false);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [session_id]);
+
+  const displayId = orderId || session_id || "";
+  const showOrderId = Boolean(orderId);
 
   return (
     <main className={styles.page}>
@@ -78,14 +110,14 @@ export default function SuccessClient() {
 
               <div className={styles.rows}>
                 <div className={styles.row}>
-                  <span className={styles.label}>Confirmation ID</span>
-                  <span className={styles.value} title={session_id}>
-                    {session_id}
+                  <span className={styles.label}>{showOrderId ? "Order ID" : "Confirmation ID"}</span>
+                  <span className={styles.value} title={displayId}>
+                    {loadingOrderId ? "Looking up your Order ID..." : shortId(displayId)}
                     <button
                       type="button"
                       className={`${styles.copyBtn} ${copied ? styles.copyBtnActive : ""}`}
                       onClick={handleCopy}
-                      aria-label="Copy confirmation ID"
+                      aria-label={`Copy ${showOrderId ? "order" : "confirmation"} ID`}
                     >
                       <FaRegCopy />
                     </button>
@@ -118,14 +150,14 @@ export default function SuccessClient() {
 
               <div className={styles.footerNote}>
                 <p className={styles.muted}>
-                  Need changes? <br/> Reply to your confirmation email as soon as possible and include your Confirmation ID.
+                  Need changes? <br/> Reply to your confirmation email as soon as possible and include your {showOrderId ? "Order" : "Confirmation"} ID.
                 </p>
                 <p className={styles.helpText}>
                   Questions?{" "} <br/>
                   <Link className={styles.inlineLink} href="/contact">
                     Contact us
                   </Link>{" "}
-                  and include your Confirmation ID.
+                  and include your {showOrderId ? "Order" : "Confirmation"} ID.
                 </p>
               </div>
             </div>

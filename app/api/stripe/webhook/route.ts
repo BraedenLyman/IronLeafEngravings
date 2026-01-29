@@ -2,13 +2,10 @@ import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import admin from "firebase-admin";
 import { getStripe } from "@/app/lib/stripe";
+import { adminDb } from "@/app/lib/firebaseAdmin";
+import { sendOrderReceiptEmail } from "@/app/lib/orderReceiptEmail";
 
 export const runtime = "nodejs";
-
-function getAdmin() {
-  if (!admin.apps.length) admin.initializeApp();
-  return admin;
-}
 
 function formatOrderId(seq: number) {
   return `IL-WC-${String(seq).padStart(6, "0")}`;
@@ -49,15 +46,19 @@ export async function POST(req: Request) {
   }
 
   if (event.type === "checkout.session.completed") {
+    console.log("Webhook: checkout.session.completed");
     const sessionFromEvent = event.data.object as Stripe.Checkout.Session;
     const session = (await stripe.checkout.sessions.retrieve(sessionFromEvent.id)) as SessionWithShipping;
 
     if (session.payment_status !== "paid") {
+      console.log("Webhook: session not paid", {
+        id: session.id,
+        paymentStatus: session.payment_status,
+      });
       return NextResponse.json({ received: true, ignored: "not_paid" });
     }
 
-    const adminApp = getAdmin();
-    const db = adminApp.firestore();
+    const db = adminDb;
 
     const pendingOrderId = session.metadata?.pendingOrderId ?? null;
     const shipping = session.shipping_details;
@@ -94,7 +95,7 @@ export async function POST(req: Request) {
           name: customerDetails?.name ?? "",
           phone: customerDetails?.phone ?? "",
           shipping: shippingToStore,
-          updatedAt: adminApp.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         },
         { merge: true }
       );
@@ -114,7 +115,7 @@ export async function POST(req: Request) {
       const newId = formatOrderId(next);
 
       tx.set(counterRef, { next: next + 1 }, { merge: true });
-      tx.set(sessionRef, { orderId: newId, createdAt: adminApp.firestore.FieldValue.serverTimestamp() });
+      tx.set(sessionRef, { orderId: newId, createdAt: admin.firestore.FieldValue.serverTimestamp() });
 
       return newId;
     });
@@ -142,7 +143,7 @@ export async function POST(req: Request) {
     
     await orderRef.set({
       
-      createdAt: adminApp.firestore.FieldValue.serverTimestamp(),
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
       orderId,
       stripeSessionId: session.id,
       stripeCustomerId,
@@ -169,11 +170,57 @@ export async function POST(req: Request) {
       await db.collection("pendingCheckouts").doc(pendingOrderId).set(
         {
           status: "completed",
-          completedAt: adminApp.firestore.FieldValue.serverTimestamp(),
+          completedAt: admin.firestore.FieldValue.serverTimestamp(),
           stripeSessionId: session.id,
         },
         { merge: true }
       );
+    }
+
+    const customerEmail =
+      customerDetails?.email ??
+      pendingShipping?.email ??
+      pendingData?.shipping?.email ??
+      "";
+
+    if (customerEmail) {
+      try {
+        const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+          limit: 100,
+        });
+        console.log("Receipt email: preparing", {
+          orderId,
+          to: customerEmail,
+          lineItems: lineItems.data.length,
+        });
+
+        const result = await sendOrderReceiptEmail({
+          to: customerEmail,
+          orderId,
+          createdAt: new Date((session.created ?? Math.floor(Date.now() / 1000)) * 1000),
+          currency: session.currency ?? "cad",
+          amountTotal: session.amount_total ?? null,
+          items: lineItems.data.map((item) => ({
+            name: item.description ?? "Item",
+            quantity: item.quantity ?? 1,
+            unitAmount: item.price?.unit_amount ?? null,
+            totalAmount: item.amount_total ?? null,
+          })),
+          shipping: shippingToStore,
+        });
+        if (result.ok) {
+          console.log("Receipt email: sent", { orderId, to: customerEmail });
+        } else {
+          console.warn("Receipt email: skipped", { orderId, reason: result.reason });
+        }
+      } catch (err) {
+        console.error("Receipt email failed:", err);
+      }
+    } else {
+      console.warn("Receipt email: missing customer email", {
+        orderId,
+        sessionId: session.id,
+      });
     }
   }
 

@@ -1,4 +1,4 @@
-import Header from "../components/Header/Header";
+import Header from "../components/header/Header";
 import Footer from "../components/footer/footer";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "../policies/policy.module.css";

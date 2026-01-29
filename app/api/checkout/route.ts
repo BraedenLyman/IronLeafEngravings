@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getStripe } from "@/app/lib/stripe";
 import admin from "firebase-admin";
+import { adminDb } from "@/app/lib/firebaseAdmin";
 
 export const runtime = "nodejs";
 
@@ -39,13 +40,6 @@ type BuyNowBody = {
   uploadedFileName?: string;
 };
 
-function getAdmin() {
-  if (!admin.apps.length) {
-    admin.initializeApp();
-  }
-  return admin;
-}
-
 export async function POST(req: Request) {
   try {
     const stripe = getStripe();
@@ -56,8 +50,7 @@ export async function POST(req: Request) {
     if (Array.isArray(body.items) && body.items.length > 0) {
       const items = body.items;
 
-      const adminApp = getAdmin();
-      const db = adminApp.firestore();
+      const db = adminDb;
 
       const itemImageUrl =
         items.find((i) => i.uploadedImageUrl || i.imageUrl)?.uploadedImageUrl ??
@@ -83,7 +76,7 @@ export async function POST(req: Request) {
           }
         : null;
       await pendingRef.set({
-        createdAt: adminApp.firestore.FieldValue.serverTimestamp(),
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
         status: "pending",
         type: "cart",
         productSlug: body.productSlug ?? "cart",
