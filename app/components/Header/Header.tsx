@@ -22,7 +22,7 @@ export default function Header() {
       { href: "/", label: "Home", match: "exact" },
       { href: "/how-it-works", label: "How it works", match: "startsWith" },
       { href: "/shop", label: "Shop", match: "startsWith" },
-      { href: "/about", label: "About", match: "startsWith" },
+      /*{ href: "/about", label: "About", match: "startsWith"}, */
       { href: "/contact", label: "Contact", match: "startsWith" },
     ],
     []

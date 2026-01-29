@@ -1,0 +1,64 @@
+.cardWrap {
+  position: relative;
+  margin-top: 22px;
+}
+
+.cardWrap::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  transform: translateX(-50%);
+  width: min(860px, 92%);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(212, 140, 58, 0.9), transparent);
+  filter: blur(0.2px);
+  opacity: 0.9;
+}
+
+.card {
+  border-radius: 22px;
+  border: 1px solid rgba(212, 140, 58, 0.35);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  backdrop-filter: blur(10px);
+}
+
+.content {
+  padding: 28px;
+  display: grid;
+  gap: 18px;
+  color: rgba(235, 235, 235, 0.94);
+  line-height: 1.65;
+}
+
+.sectionTitle {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+  color: rgba(212, 140, 58, 0.95);
+  letter-spacing: 0.02em;
+}
+
+.muted {
+  color: rgba(191, 195, 199, 0.9);
+  font-size: 0.95rem;
+}
+
+.list {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 6px 0;
+}
+
+@media (max-width: 900px) {
+  .content {
+    padding: 20px;
+  }
+}

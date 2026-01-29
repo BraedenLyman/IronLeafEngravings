@@ -2,6 +2,7 @@ import Header from "../components/Header/Header";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "./shop.module.css";
 import ProductCard from "../components/product-card/product-card";
+import Footer from "../components/footer/footer";
 
 export default function ShopPage() {
   return (
@@ -38,6 +39,7 @@ export default function ShopPage() {
           </div>
         </div>
       </section>
+      <Footer />
     </main>
   );
 }

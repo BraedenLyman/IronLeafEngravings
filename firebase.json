@@ -1,7 +1,10 @@
 {
   "hosting": {
     "rewrites": [
-      { "source": "/api/createCheckoutSession", "function": "createCheckoutSession" }
+      {
+        "source": "/api/createCheckoutSession",
+        "function": "createCheckoutSession"
+      }
     ],
     "source": ".",
     "ignore": [
@@ -12,7 +15,6 @@
     "frameworksBackend": {
       "region": "us-central1"
     }
-    
   },
   "functions": [
     {
@@ -28,5 +30,8 @@
       ],
       "predeploy": []
     }
-  ]
+  ],
+  "extensions": {
+    "firestore-send-email": "firebase/firestore-send-email@0.2.4"
+  }
 }

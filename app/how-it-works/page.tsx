@@ -5,6 +5,7 @@ import { Card, Button } from "antd";
 import Header from "../components/Header/Header";
 import styles from "./how-it-works.module.css";
 import shared from "../shared-page/shared-page.module.css";
+import Footer from "../components/footer/footer";
 
 const steps = [
   {
@@ -70,6 +71,7 @@ export default function HowItWorksPage() {
           </Card>
         </div>
       </section>
+      < Footer />
     </main>
   );
 }

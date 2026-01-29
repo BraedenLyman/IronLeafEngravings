@@ -4,13 +4,42 @@ import { useState } from "react";
 import Header from "../components/Header/Header";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "./contact.module.css";
+import Footer from "../components/footer/footer";
 
 export default function ContactPage() {
-  const [status, setStatus] = useState<"idle" | "sent">("idle");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setStatus("sent");
+    setErrorMessage("");
+    setStatus("sending");
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      name: String(formData.get("name") ?? ""),
+      email: String(formData.get("email") ?? ""),
+      subject: String(formData.get("subject") ?? ""),
+      message: String(formData.get("message") ?? ""),
+    };
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error ?? "Failed to send message");
+
+      form.reset();
+      setStatus("sent");
+    } catch (err: any) {
+      setStatus("error");
+      setErrorMessage(err?.message ?? "Failed to send message");
+    }
   };
 
   return (
@@ -57,13 +86,18 @@ export default function ContactPage() {
               </div>
 
               <div className={styles.actions}>
-                <button className={shared.pBtn} type="submit">
-                  Send Message
+                <button className={shared.pBtn} type="submit" disabled={status === "sending"}>
+                  {status === "sending" ? "Sending..." : "Send Message"}
                 </button>
 
                 {status === "sent" && (
                   <p className={styles.success}>
-                    Message queued! (Hook up sending next)
+                    Message sent! We'll get back to you soon.
+                  </p>
+                )}
+                {status === "error" && (
+                  <p className={styles.success} style={{ color: "#ef4444" }}>
+                    {errorMessage || "Failed to send message."}
                   </p>
                 )}
               </div>
@@ -71,6 +105,7 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+      <Footer />
     </main>
   );
 }
