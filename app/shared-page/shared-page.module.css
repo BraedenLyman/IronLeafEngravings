@@ -71,10 +71,9 @@
 }
 
 .pBtn:disabled {
-  cursor: not-allowed !important;
-  opacity: 0.65;
-  filter: none;
-  transform: none;
+  background: var(--charcoal, #1c1c1c) !important;
+  border-color: rgba(212, 140, 58, 0.9) !important;
+  color: rgba(212, 140, 58, 1) !important;
 }
 
 .sBtn {

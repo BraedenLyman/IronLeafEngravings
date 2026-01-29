@@ -1,13 +1,13 @@
 .wrap {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  margin-top: 3px;
 }
 
 .btn {
   width: 42px;
-  height: 52px;
+  height: 50px;
   border-radius: 12px;
   border: 1px solid rgba(191, 195, 199, 0.25);
   background: rgba(0, 0, 0, 0.25);
@@ -19,7 +19,7 @@
 
 .input {
   width: 72px;
-  height: 52px;
+  height: 50px;
   border-radius: 12px;
   border: 1px solid rgba(191, 195, 199, 0.25);
   background: rgba(0, 0, 0, 0.25);

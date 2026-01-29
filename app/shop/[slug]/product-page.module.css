@@ -26,25 +26,78 @@
 .layout {
   display: grid;
   grid-template-columns: 1fr 1.1fr;
-  gap: 24px;
-  padding: 26px;
+  gap: 18px;
+  padding: 20px;
 }
 
 .imagePanel {
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid rgba(191, 195, 199, 0.16);
-  background: rgba(0,0,0,0.25);
-  min-height: 360px;
+  width: 360px;
+  height: 240px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.imageStack {
+  display: grid;
+  gap: 12px;
+  align-items: start;
+}
+
 .productImg {
   width: 100%;
   height: 100%;
+  object-fit: contain;
+  border-radius: 14px;
+}
+
+.previewMockup {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.previewBase {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  border-radius: 12px;
+}
+
+.previewOverlay {
+  position: absolute;
+  width: 47%;
+  height: 64%;
+  top: 48%;
+  left: 49.5%;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  clip-path: circle(50% at 50% 50%);
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(100%) contrast(1.35) brightness(0.78) sepia(10%);
+  opacity: 0.58;
+  mix-blend-mode: multiply;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+    inset 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+.previewOverlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(90% 70% at 35% 30%, rgba(255, 255, 255, 0.25), transparent 60%),
+    radial-gradient(80% 60% at 70% 70%, rgba(0, 0, 0, 0.18), transparent 65%);
+  mix-blend-mode: soft-light;
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .details {
@@ -52,7 +105,7 @@
 }
 
 .section {
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .sectionTitle {
@@ -107,18 +160,19 @@
 }
 
 .customizer {
-  margin-top: 18px;
-  padding-top: 16px;
+  margin-top: 12px;
+  padding-top: 12px;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
 
 .controls {
-  margin-top: 30px;
+  margin-top: 18px;
   display: grid;
-  grid-template-columns: minmax(160px, 220px) 1fr;
-  gap: 24px;
+  grid-template-columns:  1fr;
+  gap: 18px;
   align-items: start;
 }
+
 
 .controlBlock {
   display: flex;
@@ -129,6 +183,18 @@
 .label {
   color: rgba(212, 140, 58, 0.95);
   font-weight: 900;
+}
+
+.qtyRow {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.btnContainerMain{
+  width: 50%;
 }
 
 .fileInput {
@@ -152,19 +218,52 @@
   cursor: pointer;
 }
 
-.helperText {
-  margin: 0;
-  color: rgba(191, 195, 199, 0.75);
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
 .previewWrap {
-  margin-top: 10px;
+  margin-top: 8px;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid rgba(191, 195, 199, 0.18);
   background: rgba(0, 0, 0, 0.25);
+  width: 360px;
+  height: 240px;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.imageStack .previewWrap {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hiddenFileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.previewButton {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 800;
+  text-align: center;
+  padding: 18px;
+  cursor: pointer;
+}
+
+.previewButton:hover {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.btnContainer {
+  margin-left: auto;
+  margin-right: auto;
+  width: 55%;
 }
 
 .previewImg {
@@ -175,9 +274,8 @@
   display: block;
 }
 
-
 .priceRow {
-  margin-top: 14px;
+  margin-top: 10px;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -197,7 +295,7 @@
 }
 
 .actionRow {
-  margin-top: 14px;
+  margin-top: 10px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -229,9 +327,6 @@
 
 @media (max-width: 950px) {
   .layout {
-    grid-template-columns: 1fr;
-  }
-  .controls {
     grid-template-columns: 1fr;
   }
 }

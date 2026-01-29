@@ -1,7 +1,7 @@
 "use client";
 
 import { doc, getDoc } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { db } from "@/app/lib/firebaseClient";
 import type { Product } from "../../lib/products";
 import shared from "../../shared-page/shared-page.module.css";
@@ -13,6 +13,9 @@ import { FaArrowRight } from "react-icons/fa";
 export default function ProductClient({ slug }: { slug: string }) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mockupUrl, setMockupUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -26,6 +29,14 @@ export default function ProductClient({ slug }: { slug: string }) {
     }
     load();
   }, [slug]);
+
+  useEffect(() => {
+    return () => {
+      if (mockupUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(mockupUrl);
+      }
+    };
+  }, [mockupUrl]);
 
   if (loading) {
     return (
@@ -49,6 +60,21 @@ export default function ProductClient({ slug }: { slug: string }) {
     );
   }
 
+  const handleFileChange = (file: File | null) => {
+    setSelectedFile(file);
+    if (!file) {
+      setMockupUrl("");
+      return;
+    }
+    if (mockupUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(mockupUrl);
+    }
+    const url = URL.createObjectURL(file);
+    setMockupUrl(url);
+  };
+
+  const openFilePicker = () => fileInputRef.current?.click();
+
   const keyPoints =
     product.slug === "wooden-coasters"
       ? [
@@ -71,19 +97,79 @@ export default function ProductClient({ slug }: { slug: string }) {
       <div className={styles.cardWrap}>
         <div className={styles.card}>
           <div className={styles.layout}>
-            <div className={styles.imagePanel}>
-              <img
-                src={product.image}
-                alt={product.title}
-                className={styles.productImg}
-              />
+            <div className={styles.imageStack}>
+              <div className={styles.previewWrap}>
+                <div className={styles.previewMockup}>
+                  <img
+                    src={product.image}
+                    alt={product.title}
+                    className={styles.previewBase}
+                  />
+                </div>
+              </div>
+
+              {product.slug === "wooden-coasters" ? (
+                <>
+                  <div className={styles.previewWrap}>
+                    <input
+                      ref={fileInputRef}
+                      className={styles.hiddenFileInput}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+                    />
+
+                    {!mockupUrl ? (
+                      <button
+                        className={styles.previewButton}
+                        type="button"
+                        onClick={openFilePicker}
+                      >
+                        Upload your image to preview the engraving
+                      </button>
+                    ) : (
+                      <div className={styles.previewMockup}>
+                        <img
+                          src="/products/wooden-coaster-preview.jpg"
+                          alt={`${product.title} mockup`}
+                          className={styles.previewBase}
+                        />
+                        <div
+                          className={styles.previewOverlay}
+                          style={{ backgroundImage: `url(${mockupUrl})` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.btnContainer}>
+                    {mockupUrl && (
+                      <button
+                        className={shared.sBtn}
+                        type="button"
+                        onClick={openFilePicker}
+                      >
+                        Use another image
+                      </button>
+                    )}
+                  </div>
+                </>
+              ) : null}
             </div>
 
             <div className={styles.details}>
               <ProductBadges badges={product.badges} />
+              <div className={styles.priceRow}>
+                <span className={styles.priceText}>
+                  ${((product.priceCents ?? 0) / 100).toFixed(2)}{" "}
+                  <span className={styles.muted}>/ set</span>
+                </span>
+                {product.slug !== "wooden-coasters" && (
+                  <span className={styles.muted}>({product.included})</span>
+                )}
+              </div>
 
               <div className={styles.section}>
-                <h2 className={styles.sectionTitle}>Key points</h2>
+                <h2 className={styles.sectionTitle}>Key Points</h2>
                 <ul className={styles.list}>
                   {keyPoints.map((p) => (
                     <li key={p} className={styles.listItem}>
@@ -99,7 +185,12 @@ export default function ProductClient({ slug }: { slug: string }) {
                 <span className={styles.includedValue}>{product.included}</span>
               </div>
 
-              <ProductCustomizer product={product} />
+              <ProductCustomizer
+                product={product}
+                file={selectedFile}
+                previewUrl={mockupUrl}
+                onFileChange={handleFileChange}
+              />
             </div>
           </div>
         </div>
