@@ -10,6 +10,10 @@ function getAdmin() {
   return admin;
 }
 
+function formatOrderId(seq: number) {
+  return `IL-WC-${String(seq).padStart(6, "0")}`;
+}
+
 type SessionWithShipping = Stripe.Checkout.Session & {
   shipping_details?: {
     name?: string | null;
@@ -96,7 +100,30 @@ export async function POST(req: Request) {
       );
     }
 
-    const orderRef = db.collection("orders").doc(session.id);
+    const orderId = await db.runTransaction(async (tx) => {
+      const sessionRef = db.collection("orderSessions").doc(session.id);
+      const counterRef = db.collection("meta").doc("orderCounter");
+
+      const sessionSnap = await tx.get(sessionRef);
+      if (sessionSnap.exists) {
+        return String(sessionSnap.data()?.orderId ?? "");
+      }
+
+      const counterSnap = await tx.get(counterRef);
+      const next = Number(counterSnap.data()?.next ?? 1);
+      const newId = formatOrderId(next);
+
+      tx.set(counterRef, { next: next + 1 }, { merge: true });
+      tx.set(sessionRef, { orderId: newId, createdAt: adminApp.firestore.FieldValue.serverTimestamp() });
+
+      return newId;
+    });
+
+    if (!orderId) {
+      return NextResponse.json({ error: "Failed to allocate order id" }, { status: 500 });
+    }
+
+    const orderRef = db.collection("orders").doc(orderId);
     const existing = await orderRef.get();
     if (existing.exists) {
       const existingData = existing.data() as any;
@@ -116,6 +143,7 @@ export async function POST(req: Request) {
     await orderRef.set({
       
       createdAt: adminApp.firestore.FieldValue.serverTimestamp(),
+      orderId,
       stripeSessionId: session.id,
       stripeCustomerId,
       amountTotal: session.amount_total ?? null,

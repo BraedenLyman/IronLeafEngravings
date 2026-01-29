@@ -2,16 +2,19 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import styles from "./success.module.css";
+import { FaCheck, FaRegCopy } from "react-icons/fa";
 
 function shortId(id: string) {
   if (id.length <= 14) return id;
-  return `${id.slice(0, 8)}…${id.slice(-6)}`;
+  return `${id.slice(0, 8)}â€¦${id.slice(-6)}`;
 }
 
 export default function SuccessClient() {
   const searchParams = useSearchParams();
   const session_id = searchParams.get("session_id");
+  const [copied, setCopied] = useState(false);
 
   if (!session_id) {
     return (
@@ -21,9 +24,9 @@ export default function SuccessClient() {
             <div className={styles.headerRow}>
               <div className={styles.badgeWarn}>!</div>
               <div>
-                <h1 className={styles.title}>We couldn’t find your confirmation</h1>
+                <h1 className={styles.title}>We couldn't find your confirmation</h1>
                 <p className={styles.subtitle}>
-                  The checkout session id is missing. If you think you were charged, contact us and we’ll help right away.
+                  The checkout session id is missing. If you think you were charged, contact us and we'll help right away.
                 </p>
               </div>
             </div>
@@ -42,24 +45,34 @@ export default function SuccessClient() {
     );
   }
 
+  const handleCopy = async () => {
+    if (!session_id) return;
+    try {
+      await navigator.clipboard.writeText(session_id);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setCopied(false);
+    }
+  };
+
   return (
     <main className={styles.page}>
-      <section className={styles.container}>
+      <div className={styles.container}>
         <div className={styles.card}>
           <div className={styles.headerRow}>
             <div className={styles.badgeSuccess} aria-hidden="true">
-              ✓
+              <FaCheck />
             </div>
-
             <div>
               <h1 className={styles.title}>Order confirmed</h1>
               <p className={styles.subtitle}>
-                Thanks for your order — we’ve received it and will begin preparing your engraving.
+                Thanks for your order! We have received it and will begin preparing your engraving.
               </p>
             </div>
           </div>
 
-          <div className={styles.grid}>
+          <div className={styles.summaryGrid}>
             <div className={styles.panel}>
               <h2 className={styles.panelTitle}>Order details</h2>
 
@@ -67,7 +80,15 @@ export default function SuccessClient() {
                 <div className={styles.row}>
                   <span className={styles.label}>Confirmation ID</span>
                   <span className={styles.value} title={session_id}>
-                    {shortId(session_id)}
+                    {session_id}
+                    <button
+                      type="button"
+                      className={`${styles.copyBtn} ${copied ? styles.copyBtnActive : ""}`}
+                      onClick={handleCopy}
+                      aria-label="Copy confirmation ID"
+                    >
+                      <FaRegCopy />
+                    </button>
                   </span>
                 </div>
 
@@ -79,58 +100,47 @@ export default function SuccessClient() {
                 </div>
 
                 <div className={styles.row}>
-                  <span className={styles.label}>What’s next</span>
+                  <span className={styles.label}>Receipt</span>
                   <span className={styles.value}>
-                    You’ll receive an email receipt and updates once your order is in production.
-                  </span>
-                </div>
-
-                <div className={styles.row}>
-                  <span className={styles.label}>Need changes?</span>
-                  <span className={styles.value}>
-                    Reply to your confirmation email as soon as possible and include your Confirmation ID.
+                    A copy is sent to the email used at checkout.
                   </span>
                 </div>
               </div>
             </div>
 
             <div className={styles.panel}>
-              <h2 className={styles.panelTitle}>Next steps</h2>
-
+              <h2 className={styles.panelTitle}>What happens next</h2>
               <ul className={styles.list}>
-                <li>Check your inbox for the receipt (and your spam folder just in case).</li>
-                <li>
-                  If you uploaded an image, we’ll review it and contact you if anything needs adjusting.
-                </li>
-                <li>We’ll send tracking once your order ships.</li>
+                <li>We review your image and prepare the engraving.</li>
+                <li>Production begins shortly after confirmation.</li>
+                <li>You will receive updates when your order ships.</li>
               </ul>
 
-              <div className={styles.actions}>
-                <Link className={styles.primaryBtn} href="/shop">
-                  Continue shopping
-                </Link>
-                <Link className={styles.secondaryBtn} href="/cart">
-                  View cart
-                </Link>
+              <div className={styles.footerNote}>
+                <p className={styles.muted}>
+                  Need changes? <br/> Reply to your confirmation email as soon as possible and include your Confirmation ID.
+                </p>
+                <p className={styles.helpText}>
+                  Questions?{" "} <br/>
+                  <Link className={styles.inlineLink} href="/contact">
+                    Contact us
+                  </Link>{" "}
+                  and include your Confirmation ID.
+                </p>
               </div>
-
-              <p className={styles.helpText}>
-                Questions?{" "}
-                <Link className={styles.inlineLink} href="/contact">
-                  Contact us
-                </Link>{" "}
-                and include your Confirmation ID.
-              </p>
             </div>
           </div>
 
-          <div className={styles.footerNote}>
-            <span className={styles.muted}>
-              Tip: save this page or screenshot it for your records.
-            </span>
+          <div className={styles.actions}>
+            <Link className={styles.primaryBtn} href="/shop">
+              Continue shopping
+            </Link>
+            <Link className={styles.secondaryBtn} href="/contact">
+              Contact support
+            </Link>
           </div>
         </div>
-      </section>
+      </div>
     </main>
   );
 }

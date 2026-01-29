@@ -23,7 +23,7 @@ function pickUploadedImage(o: any): { url: string; name?: string } | null {
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   context: { params: Promise<{ orderId: string }> }
 ) {
   const gate = await requireAdmin();
@@ -44,7 +44,14 @@ export async function GET(
   }
 
   const order = doc.data() as any;
-  const img = pickUploadedImage(order);
+  const items: any[] = Array.isArray(order?.items) ? order.items : [];
+  const itemIndex = Number(req.nextUrl.searchParams.get("item") ?? -1);
+  const item = Number.isInteger(itemIndex) && itemIndex >= 0 ? items[itemIndex] : null;
+
+  const img =
+    item && (item.uploadedImageUrl || item.imageUrl)
+      ? { url: item.uploadedImageUrl || item.imageUrl, name: item.uploadedFileName }
+      : pickUploadedImage(order);
   if (!img) {
     return NextResponse.json({ error: "No uploaded image for this order" }, { status: 404 });
   }

@@ -33,23 +33,24 @@ export default function CartPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: items.map((i) => ({
-            name: i.title,
-            quantity: i.quantity,
-            priceInCents: i.unitPriceCents,
-            uploadedImageUrl: i.uploadedImageUrl,
-          })),
-          productSlug: "cart",
-          uploadedFileName: items
-            .map((i) => i.uploadedFileName)
-            .filter(Boolean)
-            .join(", "),
-        }),
-      });
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: items.map((i) => ({
+              name: i.title,
+              quantity: i.quantity,
+              priceInCents: i.unitPriceCents,
+              uploadedImageUrl: i.uploadedImageUrl,
+              uploadedFileName: i.uploadedFileName,
+            })),
+            productSlug: "cart",
+            uploadedFileName: items
+              .map((i) => i.uploadedFileName)
+              .filter(Boolean)
+              .join(", "),
+          }),
+        });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Checkout failed");

@@ -10,6 +10,7 @@ type CartItem = {
   priceInCents: number;
   uploadedImageUrl?: string;
   imageUrl?: string;
+  uploadedFileName?: string;
 };
 
 type CartBody = {
@@ -96,6 +97,7 @@ export async function POST(req: Request) {
           priceInCents: i.priceInCents,
           imageUrl: i.imageUrl ?? i.uploadedImageUrl ?? "",
           uploadedImageUrl: i.uploadedImageUrl ?? i.imageUrl ?? "",
+          uploadedFileName: i.uploadedFileName ?? "",
         })),
       });
 

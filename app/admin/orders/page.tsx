@@ -239,23 +239,6 @@ export default async function AdminOrdersPage() {
                             )}
                           </div>
 
-                            <div>
-                                <a
-                                href={downloadHref}
-                                style={{
-                                    textAlign: "center",
-                                    padding: "8px 10px",
-                                    borderRadius: 10,
-                                    border: "1px solid #444",
-                                    background: "#1a1a1a",
-                                    color: "white",
-                                    textDecoration: "none",
-                                    fontSize: 13,
-                                }}
-                                >
-                                Download upload
-                                </a>
-                            </div>
                         </div>
 
                         <div style={{ display: "grid", gap: 10 }}>
@@ -270,7 +253,9 @@ export default async function AdminOrdersPage() {
                               <div style={{ opacity: 0.8, fontSize: 13 }}>
                                 Contact: {shippingEmail}{shippingPhone !== "N/A" ? ` | ${shippingPhone}` : ""}
                               </div>
-                              <div style={{ opacity: 0.7, fontSize: 12 }}>Order ID: {o.id}</div>
+                              <div style={{ opacity: 0.7, fontSize: 12 }}>
+                                Order ID: {o.orderId ?? o.id}
+                              </div>
                             </div>
 
                             <form action={updateOrderStatus} style={{ display: "flex", gap: 8, alignItems: "start" }}>
@@ -313,12 +298,56 @@ export default async function AdminOrdersPage() {
                                       gap: 10,
                                       fontSize: 14,
                                       opacity: 0.95,
+                                      alignItems: "center",
                                     }}
                                   >
-                                    <div>
-                                      {it.title ?? "Item"} × {it.quantity ?? 1}
+                                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                      {(it.uploadedImageUrl || it.imageUrl) ? (
+                                        <img
+                                          src={it.uploadedImageUrl || it.imageUrl}
+                                          alt="Item upload"
+                                          style={{
+                                            width: 44,
+                                            height: 44,
+                                            objectFit: "cover",
+                                            borderRadius: 8,
+                                            border: "1px solid #2a2a2a",
+                                          }}
+                                        />
+                                      ) : (
+                                        <div
+                                          style={{
+                                            width: 44,
+                                            height: 44,
+                                            borderRadius: 8,
+                                            border: "1px solid #2a2a2a",
+                                            background: "#111",
+                                          }}
+                                        />
+                                      )}
+                                      <div>
+                                        {it.title ?? "Item"} × {it.quantity ?? 1}
+                                      </div>
                                     </div>
-                                    <div style={{ opacity: 0.85 }}>{money(it.priceCents ?? 0)}</div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                      <div style={{ opacity: 0.85 }}>{money(it.priceCents ?? 0)}</div>
+                                      {(it.uploadedImageUrl || it.imageUrl) ? (
+                                        <a
+                                          href={`/admin/orders/${o.id}/download?item=${idx}`}
+                                          style={{
+                                            padding: "4px 8px",
+                                            borderRadius: 8,
+                                            border: "1px solid #444",
+                                            background: "#1a1a1a",
+                                            color: "white",
+                                            textDecoration: "none",
+                                            fontSize: 12,
+                                          }}
+                                        >
+                                          Download
+                                        </a>
+                                      ) : null}
+                                    </div>
                                   </div>
                                 ))
                               )}
