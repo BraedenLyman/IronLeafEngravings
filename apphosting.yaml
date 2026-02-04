@@ -1,6 +1,6 @@
 env:
   - variable: NEXT_PUBLIC_APP_URL
-    value: "https://iron-leaf-backend--iron-leaf.us-east4.hosted.app"
+    value: "https://iron-leaf.ca"
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
@@ -16,7 +16,7 @@ env:
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: "iron-leaf.appspot.com"
+    value: "iron-leaf.firebasestorage.app"
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
