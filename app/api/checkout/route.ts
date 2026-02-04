@@ -46,9 +46,14 @@ export async function POST(req: Request) {
     const body = (await req.json()) as Partial<CartBody & BuyNowBody>;
 
     const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const priceOverrideCents = Number(process.env.STRIPE_PRICE_OVERRIDE_CENTS ?? "");
+    const hasPriceOverride = Number.isFinite(priceOverrideCents) && priceOverrideCents > 0;
 
     if (Array.isArray(body.items) && body.items.length > 0) {
-      const items = body.items;
+      const items = body.items.map((i) => ({
+        ...i,
+        priceInCents: hasPriceOverride ? priceOverrideCents : i.priceInCents,
+      }));
 
       const db = adminDb;
 
