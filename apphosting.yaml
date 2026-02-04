@@ -31,3 +31,7 @@ env:
     secret: STRIPE_WEBHOOK_SECRET
     availability: [BUILD, RUNTIME]
 
+  - variable: STRIPE_PRICE_OVERRIDE_CENTS
+    value: "100"
+    availability: [BUILD, RUNTIME]
+
