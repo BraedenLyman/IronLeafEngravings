@@ -53,7 +53,6 @@ export default function ContactPage() {
             Questions about an order or custom engraving? Send a message and we’ll get back to you.
           </p>
         </div>
-
         <div className={styles.cardWrap}>
           <div className={styles.card}>
             <form className={styles.form} onSubmit={handleSubmit}>
