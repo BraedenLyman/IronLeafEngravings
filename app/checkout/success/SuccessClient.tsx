@@ -77,7 +77,7 @@ export default function SuccessClient() {
           setOrderId(String(data.orderId));
         }
       } catch {
-        // ignore lookup errors for now
+      
       } finally {
         if (!cancelled) setLoadingOrderId(false);
       }
