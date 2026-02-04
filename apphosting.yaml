@@ -1,57 +1,60 @@
 env:
   - variable: NEXT_PUBLIC_APP_URL
     value: "https://iron-leaf.ca"
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
     value: "AIzaSyCArKuNwgLAOFfwpQLZ_X5Dgd7EQgV6Zmc"
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: "iron-leaf.firebaseapp.com"
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: "iron-leaf"
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     value: "iron-leaf.firebasestorage.app"
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: "1:124706414941:web:c6a0baacdf137c3946c8b4"
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: STRIPE_SECRET_KEY
     secret: STRIPE_SECRET_KEY
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: STRIPE_WEBHOOK_SECRET
     secret: STRIPE_WEBHOOK_SECRET
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: STRIPE_PRICE_OVERRIDE_CENTS
     value: "100"
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: SMTP_HOST
     secret: SMTP_HOST
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: SMTP_PORT
     secret: SMTP_PORT
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: SMTP_USER
     secret: SMTP_USER
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: SMTP_PASS
     secret: SMTP_PASS
-    availability: [BUILD, RUNTIME]
+    availability: [ BUILD, RUNTIME ]
 
   - variable: CONTACT_FROM_EMAIL
     secret: CONTACT_FROM_EMAIL
+    availability: [ BUILD, RUNTIME ]
+    
+  - variable: CONTACT_TO_EMAIL
+    secret: CONTACT_TO_EMAIL
     availability: [BUILD, RUNTIME]
-
