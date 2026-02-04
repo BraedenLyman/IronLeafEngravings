@@ -19,7 +19,6 @@ export default function SuccessClient() {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [loadingOrderId, setLoadingOrderId] = useState(false);
   const { clear } = useCart();
-
   if (!session_id) {
     return (
       <main className={styles.page}>
