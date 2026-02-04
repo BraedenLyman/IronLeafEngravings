@@ -35,3 +35,23 @@ env:
     value: "100"
     availability: [BUILD, RUNTIME]
 
+  - variable: SMTP_HOST
+    secret: SMTP_HOST
+    availability: [BUILD, RUNTIME]
+
+  - variable: SMTP_PORT
+    secret: SMTP_PORT
+    availability: [BUILD, RUNTIME]
+
+  - variable: SMTP_USER
+    secret: SMTP_USER
+    availability: [BUILD, RUNTIME]
+
+  - variable: SMTP_PASS
+    secret: SMTP_PASS
+    availability: [BUILD, RUNTIME]
+
+  - variable: CONTACT_FROM_EMAIL
+    secret: CONTACT_FROM_EMAIL
+    availability: [BUILD, RUNTIME]
+
