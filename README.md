@@ -1,11 +1,6 @@
 <div align="center">
-
-# IronLeaf Engravings
-
+  <img src="public/logo/IronLeafLogo.png" height="500px" width="500px" />
 </div>
-
-<br />
-<br />
 
 <div align="center">
   A custom engraving storefront for turning photos and designs into engraved keepsakes. Built with a polished
@@ -116,4 +111,7 @@ IronLeaf Engravings is built to support the full purchase flow for custom engrav
 
 ## Author
 
-Braeden Lyman
+Braeden Lyman  - Developer  
+<div align="center">
+   Website: https://braedenlyman.ca  | GitHub: https://github.com/BraedenLyman  | LinkedIn: https://www.linkedin.com/in/braedenlyman/
+</div>
