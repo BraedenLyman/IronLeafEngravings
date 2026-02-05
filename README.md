@@ -44,62 +44,6 @@ Live Site: https://iron-leaf.ca
 }
 ```
 
-## Installation
-
-> Node.js LTS recommended
-
-1. Clone the repository
-   ```bash
-   git clone <your-repo-url>
-   ```
-2. Install dependencies
-   ```bash
-   npm install
-   ```
-3. Start the development server
-   ```bash
-   npm run dev
-   ```
-
-## Environment Variables
-
-Create a `.env.local` file in the project root and set the following variables:
-
-```bash
-# App
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# Firebase client
-NEXT_PUBLIC_FIREBASE_API_KEY=
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
-NEXT_PUBLIC_FIREBASE_APP_ID=
-
-# Firebase admin
-FIREBASE_SERVICE_ACCOUNT_JSON=
-
-# or use a service account file path
-GOOGLE_APPLICATION_CREDENTIALS=
-
-# Stripe
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-
-# Email (contact + receipts)
-SMTP_HOST=
-SMTP_PORT=
-SMTP_USER=
-SMTP_PASS=
-CONTACT_TO_EMAIL=
-CONTACT_FROM_EMAIL=
-```
-
-## Scripts
-
-- `npm run dev` - Start Next.js dev server
-
 ## Usage
 
 IronLeaf Engravings is built to support the full purchase flow for custom engraving orders:
