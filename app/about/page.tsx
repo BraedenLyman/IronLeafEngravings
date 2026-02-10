@@ -8,7 +8,6 @@ export default function AboutPage() {
   return (
     <main className={shared.page}>
       <Header />
-
       <section className={shared.container}>
         <div className={shared.hero}>
           <h1 className={shared.title}>About</h1>
