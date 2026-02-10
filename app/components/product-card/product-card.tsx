@@ -8,7 +8,8 @@ interface ProductCardProps {
   description: string;
   price: string;
   image: string;
-  href: string;
+  href?: string;
+  comingSoon?: boolean;
 }
 
 export default function ProductCard({
@@ -17,9 +18,10 @@ export default function ProductCard({
   price,
   image,
   href,
+  comingSoon = false,
 }: ProductCardProps) {
-  return (
-    <Link href={href} className={styles.card}>
+  const body = (
+    <>
       <div className={styles.imageWrapper}>
         <Image
           src={image}
@@ -27,6 +29,9 @@ export default function ProductCard({
           fill
           className={styles.image}
         />
+        {comingSoon && (
+          <span className={styles.badge}>Coming soon</span>
+        )}
       </div>
 
       <div className={styles.content}>
@@ -35,9 +40,27 @@ export default function ProductCard({
 
         <div className={styles.footer}>
           <span className={styles.price}>{price}</span>
-          <span className={styles.cta}>Customize<FaArrowRight/></span>
+          {comingSoon ? (
+            <span className={styles.ctaDisabled}>Coming soon</span>
+          ) : (
+            <span className={styles.cta}>Customize<FaArrowRight/></span>
+          )}
         </div>
       </div>
+    </>
+  );
+
+  if (comingSoon || !href) {
+    return (
+      <div className={`${styles.card} ${styles.cardDisabled}`} aria-disabled="true">
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <Link href={href} className={styles.card}>
+      {body}
     </Link>
   );
 }

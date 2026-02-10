@@ -27,13 +27,12 @@ export default function ShopPage() {
                 image="/products/wooden-coaster.jpg"
                 href="/shop/wooden-coasters"
               />
-
               <ProductCard
-                title="Black Ceramic Coasters"
-                description="Sleek black ceramic with high-contrast engraving."
-                price="$34.99"
+                title="Ceramic Coasters"
+                description="Sleek ceramic with crisp engraving — launching soon."
+                price="TBD"
                 image="/products/ceramic-coaster.jpg"
-                href="/shop/ceramic-coasters"
+                comingSoon
               />
             </div>
           </div>
@@ -43,3 +42,5 @@ export default function ShopPage() {
     </main>
   );
 }
+
+
