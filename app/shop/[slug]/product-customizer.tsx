@@ -29,7 +29,6 @@ export default function ProductCustomizer({
   onFileChange: (file: File | null) => void;
 }) {
   const { addItem } = useCart();
-
   const [qty, setQty] = useState(1);
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
