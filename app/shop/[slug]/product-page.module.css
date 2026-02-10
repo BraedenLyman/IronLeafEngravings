@@ -205,20 +205,26 @@
 
 .fileInput {
   border-radius: 14px;
-  border: 1px solid rgba(191, 195, 199, 0.2);
-  background: rgba(0, 0, 0, 0.25);
+  border: 2px dashed rgba(212, 140, 58, 0.4);
+  background:
+    radial-gradient(120% 90% at 20% 0%, rgba(212, 140, 58, 0.16), transparent 60%),
+    rgba(0, 0, 0, 0.32);
   color: rgba(191, 195, 199, 0.95);
-  padding: 10px 12px;
+  padding: 14px 14px;
   width: 100%;
   max-width: 360px;
+  cursor: pointer;
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .fileInput::file-selector-button {
   margin-right: 12px;
-  padding: 6px 12px;
+  padding: 8px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(191, 195, 199, 0.35);
-  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(212, 140, 58, 0.6);
+  background: rgba(212, 140, 58, 0.2);
   color: rgba(255, 255, 255, 0.92);
   font-weight: 700;
   cursor: pointer;
@@ -228,13 +234,18 @@
   margin-top: 8px;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid rgba(191, 195, 199, 0.18);
-  background: rgba(0, 0, 0, 0.25);
+  border: 2px dashed rgba(212, 140, 58, 0.45);
+  background:
+    radial-gradient(120% 90% at 20% 0%, rgba(212, 140, 58, 0.18), transparent 60%),
+    rgba(0, 0, 0, 0.35);
   width: 360px;
   height: 240px;
   display: grid;
   place-items: center;
   position: relative;
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
 }
 
 .imageStack .previewWrap {
@@ -254,16 +265,52 @@
   width: 100%;
   height: 100%;
   border: none;
-  background: rgba(0, 0, 0, 0.35);
+  background: transparent;
   color: rgba(255, 255, 255, 0.9);
   font-weight: 800;
   text-align: center;
   padding: 18px;
   cursor: pointer;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
 }
 
 .previewButton:hover {
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(212, 140, 58, 0.08);
+  transform: translateY(-1px);
+}
+
+.previewButton:focus-visible {
+  outline: 2px solid rgba(212, 140, 58, 0.9);
+  outline-offset: -4px;
+}
+
+.uploadIcon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(212, 140, 58, 0.18);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.6rem;
+  font-weight: 900;
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(212, 140, 58, 0.6);
+}
+
+.uploadTitle {
+  font-size: 1.05rem;
+  letter-spacing: 0.2px;
+}
+
+.uploadSub {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(191, 195, 199, 0.9);
 }
 
 .btnContainer {

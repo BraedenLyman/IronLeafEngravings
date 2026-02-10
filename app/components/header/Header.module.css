@@ -10,7 +10,7 @@
 .inner {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 12px 18px;
+  padding: 5px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -24,7 +24,7 @@
 }
 
 .logo {
-  width: 180px;
+  width: 140px;
   height: auto;
 }
 
@@ -42,7 +42,7 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   font-size: 13px;
-  padding: 10px 10px;
+  padding: 6px 8px;
   border-radius: 10px;
   transition: background 140ms ease, color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
 }
@@ -66,7 +66,7 @@
 .cartLink {
   display: inline-flex;
   align-items: center;
-  padding: 8px 10px;
+  padding: 4px 8px;
   border-radius: 10px;
   text-decoration: none;
   transition: background 140ms ease, box-shadow 140ms ease;
@@ -84,13 +84,13 @@
 /* Hamburger (hidden on desktop) */
 .burger {
   display: none;
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
   border-radius: 12px;
   border: 1px solid rgba(191, 195, 199, 0.35);
   background: rgba(20, 20, 20, 0.55);
   cursor: pointer;
-  padding: 10px;
+  padding: 6px;
   position: relative;
 }
 
@@ -104,7 +104,7 @@
   width: 100%;
   background: var(--silver);
   border-radius: 999px;
-  margin: 6px 0;
+  margin: 4px 0;
   transition: transform 160ms ease, opacity 160ms ease;
 }
 
@@ -177,6 +177,6 @@
 
 @media (max-width: 560px) {
   .logo {
-    width: 160px;
+    width: 120px;
   }
 }

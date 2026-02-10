@@ -99,7 +99,7 @@ export default function ProductClient({ slug }: { slug: string }) {
         <div className={styles.card}>
           <div className={styles.layout}>
             <div className={styles.imageStack}>
-              <div className={styles.previewWrap}>
+              <div className={`${styles.previewWrap} ${styles.previewWrapNoBorder}`}>
                 <div className={styles.previewMockup}>
                   {product.slug === "wooden-coasters" ? (
                     <Carousel dots draggable autoplay autoplaySpeed={3500} pauseOnHover className={styles.carousel}>
@@ -137,7 +137,11 @@ export default function ProductClient({ slug }: { slug: string }) {
                         type="button"
                         onClick={openFilePicker}
                       >
-                        Upload your image to preview the engraving
+                        <span className={styles.uploadIcon} aria-hidden="true">
+                          +
+                        </span>
+                        <span className={styles.uploadTitle}>Upload your image</span>
+                        <span className={styles.uploadSub}>Click to choose a photo for the engraving preview</span>
                       </button>
                     ) : (
                       <div className={styles.previewMockup}>
