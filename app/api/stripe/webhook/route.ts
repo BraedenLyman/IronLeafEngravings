@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import admin from "firebase-admin";
 import { getStripe } from "@/app/lib/stripe";
 import { adminDb } from "@/app/lib/firebaseAdmin";
-import { sendOrderReceiptEmail } from "@/app/lib/orderReceiptEmail";
+import { sendOrderNotificationEmail, sendOrderReceiptEmail } from "@/app/lib/orderReceiptEmail";
 
 export const runtime = "nodejs";
 
@@ -183,11 +183,14 @@ export async function POST(req: Request) {
       pendingData?.shipping?.email ??
       "";
 
+    let lineItemsForEmail: Stripe.ApiList<Stripe.LineItem> | null = null;
+
     if (customerEmail) {
       try {
         const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
           limit: 100,
         });
+        lineItemsForEmail = lineItems;
         console.log("Receipt email: preparing", {
           orderId,
           to: customerEmail,
@@ -221,6 +224,40 @@ export async function POST(req: Request) {
         orderId,
         sessionId: session.id,
       });
+    }
+
+    try {
+      if (!lineItemsForEmail) {
+        lineItemsForEmail = await stripe.checkout.sessions.listLineItems(session.id, {
+          limit: 100,
+        });
+      }
+      const notifyItems = lineItemsForEmail?.data?.map((item) => ({
+        name: item.description ?? "Item",
+        quantity: item.quantity ?? 1,
+        unitAmount: item.price?.unit_amount ?? null,
+        totalAmount: item.amount_total ?? null,
+      })) ?? [];
+
+      const notifyResult = await sendOrderNotificationEmail({
+        orderId,
+        createdAt: new Date((session.created ?? Math.floor(Date.now() / 1000)) * 1000),
+        currency: session.currency ?? "cad",
+        amountTotal: session.amount_total ?? null,
+        items: notifyItems,
+        customerEmail,
+        customerName: customerDetails?.name ?? pendingShipping?.name ?? null,
+        customerPhone: customerDetails?.phone ?? pendingShipping?.phone ?? null,
+        shipping: shippingToStore,
+      });
+
+      if (notifyResult.ok) {
+        console.log("Order notification: sent", { orderId });
+      } else {
+        console.warn("Order notification: skipped", { orderId, reason: notifyResult.reason });
+      }
+    } catch (err) {
+      console.error("Order notification failed:", err);
     }
   }
 
