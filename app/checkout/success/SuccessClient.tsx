@@ -12,10 +12,14 @@ function shortId(id: string) {
   return `${id.slice(0, 8)}...${id.slice(-6)}`;
 }
 
+function sanitizeLookupId(raw: string | null) {
+  return String(raw ?? "").trim().replace(/[|]+$/g, "");
+}
+
 export default function SuccessClient() {
   const searchParams = useSearchParams();
-  const session_id = searchParams.get("session_id");
-  const payment_intent = searchParams.get("payment_intent");
+  const session_id = sanitizeLookupId(searchParams.get("session_id"));
+  const payment_intent = sanitizeLookupId(searchParams.get("payment_intent"));
   const confirmationId = session_id || payment_intent;
   const [copied, setCopied] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -23,7 +27,7 @@ export default function SuccessClient() {
   const { clear } = useCart();
 
   const handleCopy = async () => {
-    const value = orderId || confirmationId;
+    const value = orderId;
     if (!value) return;
     try {
       await navigator.clipboard.writeText(value);
@@ -42,15 +46,25 @@ export default function SuccessClient() {
 
     const load = async () => {
       setLoadingOrderId(true);
+      const q = session_id
+        ? `session_id=${encodeURIComponent(session_id)}`
+        : `payment_intent=${encodeURIComponent(payment_intent ?? "")}`;
+
+      const startedAt = Date.now();
+      const maxWaitMs = 30000;
+      const retryDelayMs = 1500;
+
       try {
-        const q = session_id
-          ? `session_id=${encodeURIComponent(session_id)}`
-          : `payment_intent=${encodeURIComponent(payment_intent ?? "")}`;
-        const res = await fetch(`/api/orders/by-session?${q}`);
-        if (!res.ok) return;
-        const data = (await res.json()) as { orderId?: string | null };
-        if (!cancelled && data.orderId) {
-          setOrderId(String(data.orderId));
+        while (!cancelled && Date.now() - startedAt < maxWaitMs) {
+          const res = await fetch(`/api/orders/by-session?${q}`);
+          if (res.ok) {
+            const data = (await res.json()) as { orderId?: string | null };
+            if (data.orderId) {
+              if (!cancelled) setOrderId(String(data.orderId));
+              break;
+            }
+          }
+          await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
         }
       } catch {
       
@@ -118,15 +132,17 @@ export default function SuccessClient() {
               <h2 className={styles.panelTitle}>Order details</h2>
 
               <div className={styles.rows}>
-                <div className={styles.row}>
-                  <span className={styles.label}>{showOrderId ? "Order ID" : "Confirmation ID"}</span>
-                  <span className={styles.value} title={displayId}>
+                <div className={`${styles.row} ${styles.idRow}`}>
+                  <span className={`${styles.label} ${styles.idLabel}`}>{showOrderId ? "Order ID" : "Confirmation ID"}</span>
+                  <span className={`${styles.value} ${styles.idValue}`} title={displayId}>
                     {loadingOrderId ? "Looking up your Order ID..." : shortId(displayId)}
                     <button
                       type="button"
                       className={`${styles.copyBtn} ${copied ? styles.copyBtnActive : ""}`}
                       onClick={handleCopy}
                       aria-label={`Copy ${showOrderId ? "order" : "confirmation"} ID`}
+                      disabled={!orderId}
+                      title={orderId ? "Copy Order ID" : "Order ID is still loading"}
                     >
                       <FaRegCopy />
                     </button>

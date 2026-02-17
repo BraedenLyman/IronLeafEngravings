@@ -3,11 +3,15 @@ import { adminDb } from "@/app/lib/firebaseAdmin";
 
 export const runtime = "nodejs";
 
+function sanitizeLookupId(raw: string | null) {
+  return String(raw ?? "").trim().replace(/[|]+$/g, "");
+}
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const sessionId = String(searchParams.get("session_id") ?? "").trim();
-    const paymentIntentId = String(searchParams.get("payment_intent") ?? "").trim();
+    const sessionId = sanitizeLookupId(searchParams.get("session_id"));
+    const paymentIntentId = sanitizeLookupId(searchParams.get("payment_intent"));
 
     if (!sessionId && !paymentIntentId) {
       return NextResponse.json({ error: "Missing session_id or payment_intent" }, { status: 400 });
