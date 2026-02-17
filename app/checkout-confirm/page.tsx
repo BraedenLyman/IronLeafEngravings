@@ -97,7 +97,7 @@ export default function CheckoutConfirmPage() {
   const subtotalCents = useMemo(
     () =>
       items.reduce((sum, i) => {
-        const unitPrice = i.slug === "wooden-coasters" ? 999 : i.unitPriceCents;
+        const unitPrice = i.unitPriceCents;
         return sum + unitPrice * (i.quantity ?? 0);
       }, 0),
     [items]
@@ -144,7 +144,8 @@ export default function CheckoutConfirmPage() {
         slug: i.slug,
         name: i.title,
         quantity: i.quantity,
-        priceInCents: i.slug === "wooden-coasters" ? 999 : i.unitPriceCents,
+        priceInCents: i.unitPriceCents,
+        coasterSetSize: i.coasterSetSize,
         uploadedImageUrl: i.uploadedImageUrl,
         uploadedFileName: i.uploadedFileName,
       })),
@@ -304,7 +305,7 @@ export default function CheckoutConfirmPage() {
                 <div className={styles.summaryList}>
                   {items.map((i) => {
                     const thumb = i.productImageUrl ?? i.imagePreviewUrl ?? i.uploadedImageUrl ?? "";
-                    const unitPrice = i.slug === "wooden-coasters" ? 999 : i.unitPriceCents;
+                    const unitPrice = i.unitPriceCents;
                     return (
                       <div key={i.id} className={styles.summaryItem}>
                         <div className={styles.summaryThumbWrap}>

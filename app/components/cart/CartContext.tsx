@@ -7,6 +7,7 @@ export type CartItem = {
   slug: string;
   title: string;
   unitPriceCents: number;
+  coasterSetSize?: number;
   quantity: number;
   included: string;
   productImageUrl?: string;

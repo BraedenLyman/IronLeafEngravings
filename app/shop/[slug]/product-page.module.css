@@ -106,9 +106,6 @@
   pointer-events: none;
 }
 
-.details {
-  padding: 4px 2px;
-}
 
 .section {
   margin-top: 10px;
@@ -151,7 +148,7 @@
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
-  width: 270px;
+  width: 450px;
 }
 
 .includedLabel {
@@ -163,6 +160,8 @@
   font-weight: 800;
   flex: 1 1 auto;
   min-width: 0;
+  overflow-wrap: anywhere;
+  max-width: 320px;
 }
 
 .customizer {
@@ -182,8 +181,8 @@
 
 .controlBlock {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  gap: 60px;
 }
 
 .label {
@@ -191,16 +190,24 @@
   font-weight: 900;
 }
 
+.setSize{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
 .qtyRow {
   display: flex;
-  flex-direction: row;
-  width: 100%;
-  justify-content: space-between;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .btnContainerMain{
   width: 50%;
+  display: grid;
+  gap: 10px;
 }
 
 .fileInput {
@@ -217,6 +224,38 @@
   box-shadow:
     0 12px 24px rgba(0, 0, 0, 0.3),
     inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.selectInput {
+  border-radius: 12px;
+  border: 1px solid rgba(212, 140, 58, 0.9);
+  background: var(--amber);
+  color: var(--charcoal);
+  font-weight: bold;
+  padding: 12px 14px;
+  padding-right: 42px;
+  width: 100%;
+  max-width: 250px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+.selectInput:hover {
+  border: 1px solid var(--amber);
+  background-color: var(--charcoal);
+  color: var(--amber);
+}
+
+.selectInput:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(212, 140, 58, 0.25);
+}
+
+.selectInput option {
+  background: var(--charcoal);
+  color: var(--amber);
 }
 
 .fileInput::file-selector-button {
@@ -381,5 +420,33 @@
 @media (max-width: 950px) {
   .layout {
     grid-template-columns: 1fr;
+  }
+ 
+  .imageStack {
+    margin-left: -15px;
+  }
+
+  .details {
+    margin-left: -15px;
+    margin-right: 10px;
+  }
+
+  .section {
+    justify-content: center;
+  }
+
+  .controlBlock {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .qtyRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btnContainerMain {
+    width: 100%;
+    max-width: 320px;
   }
 }

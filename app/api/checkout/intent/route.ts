@@ -14,6 +14,7 @@ type CartItem = {
   name: string;
   quantity: number;
   priceInCents: number;
+  coasterSetSize?: number;
   slug?: string;
   uploadedImageUrl?: string;
   imageUrl?: string;
@@ -75,6 +76,7 @@ export async function POST(req: Request) {
         slug: i.slug,
         name: i.name,
         priceInCents: i.priceInCents,
+        coasterSetSize: i.coasterSetSize,
       }),
     }));
 
@@ -122,6 +124,7 @@ export async function POST(req: Request) {
         name: i.name,
         quantity: i.quantity,
         priceInCents: i.priceInCents,
+        coasterSetSize: i.coasterSetSize ?? null,
         imageUrl: i.imageUrl ?? i.uploadedImageUrl ?? "",
         uploadedImageUrl: i.uploadedImageUrl ?? i.imageUrl ?? "",
         uploadedFileName: i.uploadedFileName ?? "",

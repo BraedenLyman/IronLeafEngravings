@@ -8,7 +8,7 @@ import { sendOrderNotificationEmail, sendOrderReceiptEmail } from "@/app/lib/ord
 export const runtime = "nodejs";
 
 function formatOrderId(seq: number) {
-  return `IL-WC-${String(seq).padStart(6, "0")}`;
+  return `IL-${String(seq).padStart(4, "0")}`;
 }
 
 type SessionWithShipping = Stripe.Checkout.Session & {

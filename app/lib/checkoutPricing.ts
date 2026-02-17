@@ -12,6 +12,8 @@ export const SHIPPING_CENTS_BY_COUNTRY: Record<string, number> = {
   NZ: 1299,
 };
 
+export const WOODEN_COASTER_SET_SIZES = [1, 2, 4, 6, 8, 12, 24, 50, 100] as const;
+
 export function normalizeCountry(code: string | null | undefined) {
   return String(code ?? "").trim().toUpperCase();
 }
@@ -22,10 +24,15 @@ export function normalizeItemPriceCents(input: {
   slug?: string;
   name: string;
   priceInCents: number;
+  coasterSetSize?: number;
 }) {
   if (input.hasPriceOverride) return input.priceOverrideCents;
   if (input.slug === "wooden-coasters" || /wooden\s+coaster/i.test(input.name)) {
-    return 999;
+    const rawSetSize = Number(input.coasterSetSize ?? 1);
+    const setSize = WOODEN_COASTER_SET_SIZES.includes(rawSetSize as (typeof WOODEN_COASTER_SET_SIZES)[number])
+      ? rawSetSize
+      : 1;
+    return 999 * setSize;
   }
   return input.priceInCents;
 }

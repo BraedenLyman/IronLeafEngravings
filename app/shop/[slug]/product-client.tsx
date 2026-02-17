@@ -16,6 +16,7 @@ export default function ProductClient({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(true);
   const [mockupUrl, setMockupUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [coasterSetSize, setCoasterSetSize] = useState(1);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -87,7 +88,12 @@ export default function ProductClient({ slug }: { slug: string }) {
         ]
 
       : product.keyPoints;
-  const displayPriceCents = product.slug === "wooden-coasters" ? 999 : product.priceCents;
+  const displayPriceCents = product.slug === "wooden-coasters" ? 999 * coasterSetSize : product.priceCents;
+  const woodenSetLabel = coasterSetSize === 1 ? "1 Coaster" : `Set of ${coasterSetSize}`;
+  const includedValue =
+    product.slug === "wooden-coasters"
+      ? `${coasterSetSize} ${coasterSetSize === 1 ? "coaster" : "coasters"} with the same image`
+      : product.included;
 
   return (
     <section className={shared.container}>
@@ -178,7 +184,9 @@ export default function ProductClient({ slug }: { slug: string }) {
               <div className={styles.priceRow}>
                 <span className={styles.priceText}>
                   ${((displayPriceCents ?? 0) / 100).toFixed(2)}{" "}
-                  <span className={styles.muted}>/ set</span>
+                  <span className={styles.muted}>
+                    / {product.slug === "wooden-coasters" ? woodenSetLabel : "set"}
+                  </span>
                 </span>
                 {product.slug !== "wooden-coasters" && (
                   <span className={styles.muted}>({product.included})</span>
@@ -197,9 +205,10 @@ export default function ProductClient({ slug }: { slug: string }) {
                 </ul>
               </div>
 
+              
               <div className={styles.included}>
                 <span className={styles.includedLabel}>Included:</span>
-                <span className={styles.includedValue}>{product.included}</span>
+                <span className={styles.includedValue}>{includedValue}</span>
               </div>
 
               <ProductCustomizer
@@ -207,7 +216,8 @@ export default function ProductClient({ slug }: { slug: string }) {
                 file={selectedFile}
                 previewUrl={mockupUrl}
                 onFileChange={handleFileChange}
-              />
+                coasterSetSize={coasterSetSize}
+                onCoasterSetSizeChange={setCoasterSetSize}              />
             </div>
           </div>
         </div>

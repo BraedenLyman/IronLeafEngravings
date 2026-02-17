@@ -22,7 +22,7 @@ export default function CartPage() {
   const subtotalCents = useMemo(
     () =>
       items.reduce((sum, i) => {
-        const unitPrice = i.slug === "wooden-coasters" ? 999 : i.unitPriceCents;
+        const unitPrice = i.unitPriceCents;
         return sum + unitPrice * (i.quantity ?? 0);
       }, 0),
     [items]
@@ -75,7 +75,7 @@ export default function CartPage() {
               <div className={styles.items}>
                 {items.map((i) => {
                   const qty = i.quantity ?? 0;
-                  const unitPrice = i.slug === "wooden-coasters" ? 999 : i.unitPriceCents;
+                  const unitPrice = i.unitPriceCents;
                   const lineTotal = unitPrice * qty;
                   const productThumb = i.productImageUrl ?? i.imagePreviewUrl ?? i.uploadedImageUrl;
                   const uploadedPreview = i.uploadedImageUrl ?? i.imagePreviewUrl;
