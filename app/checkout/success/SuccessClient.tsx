@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./success.module.css";
 import { FaCheck, FaRegCopy } from "react-icons/fa";
 import { useCart } from "@/app/components/cart/CartContext";
@@ -25,6 +25,7 @@ export default function SuccessClient() {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [loadingOrderId, setLoadingOrderId] = useState(false);
   const { clear } = useCart();
+  const hasClearedCart = useRef(false);
 
   const handleCopy = async () => {
     const value = orderId;
@@ -42,7 +43,10 @@ export default function SuccessClient() {
     if (!confirmationId) return;
     let cancelled = false;
 
-    clear();
+    if (!hasClearedCart.current) {
+      clear();
+      hasClearedCart.current = true;
+    }
 
     const load = async () => {
       setLoadingOrderId(true);
@@ -77,7 +81,7 @@ export default function SuccessClient() {
     return () => {
       cancelled = true;
     };
-  }, [clear, confirmationId, payment_intent, session_id]);
+  }, [confirmationId, payment_intent, session_id]);
 
   if (!confirmationId) {
     return (
