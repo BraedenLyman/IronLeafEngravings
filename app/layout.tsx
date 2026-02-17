@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
 import { CartProvider } from "./components/cart/CartContext";
 import { AnalyticsTracker } from "./components/analytics/AnalyticsTracker";
@@ -54,7 +55,9 @@ export default function RootLayout({
       ) : null}
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <CartProvider>
-          <AnalyticsTracker measurementId={measurementId} />
+          <Suspense fallback={null}>
+            <AnalyticsTracker measurementId={measurementId} />
+          </Suspense>
           {children}
         </CartProvider>
       </body>
