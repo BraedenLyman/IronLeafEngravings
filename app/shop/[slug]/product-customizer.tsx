@@ -30,11 +30,11 @@ export default function ProductCustomizer({
 }) {
   const { addItem } = useCart();
   const [qty, setQty] = useState(1);
-  const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string>("");
 
   const [added, setAdded] = useState(false);
+  const unitPriceCents = product.slug === "wooden-coasters" ? 999 : product.priceCents;
 
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function ProductCustomizer({
     setAdded(false);
   }, [previewUrl]);
 
-  const isBusy = loading || adding;
+  const isBusy = adding;
   const canSubmit = qty >= 1 && !!file && !isBusy;
 
   const handleAddToCart = async () => {
@@ -69,7 +69,7 @@ export default function ProductCustomizer({
         id: `${product.slug}-${crypto.randomUUID()}`,
         slug: product.slug,
         title: product.title,
-        unitPriceCents: product.priceCents,
+        unitPriceCents,
         quantity: qty,
         included: product.included,
         productImageUrl: product.image,
@@ -79,53 +79,10 @@ export default function ProductCustomizer({
       });
 
       setAdded(true);
-    } catch (e: any) {
-      setError(e?.message ?? "Failed to upload image");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to upload image");
     } finally {
       setAdding(false);
-    }
-  };
-
-  const handleBuyNow = async () => {
-    if (!file) return;
-
-    setLoading(true);
-    setError("");
-    setAdded(false);
-
-    try {
-      const uploadPath = `uploads/${product.slug}/${crypto.randomUUID()}-${file.name}`;
-      const fileRef = ref(storage, uploadPath);
-
-      await uploadBytes(fileRef, file);
-      const imageUrl = await getDownloadURL(fileRef);
-
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug: product.slug,
-          quantity: qty,
-          uploadedImageUrl: imageUrl,
-          uploadedFileName: file.name,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.error ?? "Checkout failed");
-      }
-
-      if (!data?.url) {
-        throw new Error("No checkout URL returned");
-      }
-
-      window.location.href = data.url;
-    } catch (e: any) {
-      setError(e?.message ?? "Something went wrong");
-    } finally {
-      setLoading(false);
     }
   };
 

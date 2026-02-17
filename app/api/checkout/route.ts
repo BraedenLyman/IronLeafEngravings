@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { getStripe } from "@/app/lib/stripe";
 import admin from "firebase-admin";
 import { adminDb } from "@/app/lib/firebaseAdmin";
+import {
+  normalizeCountry,
+  normalizeItemPriceCents,
+  SHIPPING_RATE_ID_BY_COUNTRY,
+} from "@/app/lib/checkoutPricing";
 
 export const runtime = "nodejs";
 
@@ -9,6 +14,7 @@ type CartItem = {
   name: string;
   quantity: number;
   priceInCents: number;
+  slug?: string;
   uploadedImageUrl?: string;
   imageUrl?: string;
   uploadedFileName?: string;
@@ -44,15 +50,31 @@ export async function POST(req: Request) {
   try {
     const stripe = getStripe();
     const body = (await req.json()) as Partial<CartBody & BuyNowBody>;
+    const allowedShippingCountries = Object.keys(SHIPPING_RATE_ID_BY_COUNTRY);
 
     const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
     const priceOverrideCents = Number(process.env.STRIPE_PRICE_OVERRIDE_CENTS ?? "");
     const hasPriceOverride = Number.isFinite(priceOverrideCents) && priceOverrideCents > 0;
 
     if (Array.isArray(body.items) && body.items.length > 0) {
+      const shippingCountry = normalizeCountry(body.shipping?.country);
+      const shippingRateId = SHIPPING_RATE_ID_BY_COUNTRY[shippingCountry];
+      if (!shippingRateId) {
+        return NextResponse.json(
+          { error: "Shipping country is required and must be one of: Canada, United Kingdom, United States, or New Zealand." },
+          { status: 400 }
+        );
+      }
+
       const items = body.items.map((i) => ({
         ...i,
-        priceInCents: hasPriceOverride ? priceOverrideCents : i.priceInCents,
+        priceInCents: normalizeItemPriceCents({
+          hasPriceOverride,
+          priceOverrideCents,
+          slug: i.slug,
+          name: i.name,
+          priceInCents: i.priceInCents,
+        }),
       }));
 
       const db = adminDb;
@@ -111,7 +133,8 @@ export async function POST(req: Request) {
         })),
 
         billing_address_collection: "auto",
-        shipping_address_collection: { allowed_countries: ["CA", "US"] },
+        shipping_address_collection: { allowed_countries: allowedShippingCountries as ("CA" | "GB" | "US" | "NZ")[] },
+        shipping_options: [{ shipping_rate: shippingRateId }],
         phone_number_collection: { enabled: true },
 
         customer_creation: "always",
@@ -137,10 +160,11 @@ export async function POST(req: Request) {
       { error: "Buy Now not wired up yet (no cart items sent)" },
       { status: 400 }
     );
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "Unknown error";
     console.error("POST /api/checkout error:", e);
     return NextResponse.json(
-      { error: e?.message ?? "Unknown error" },
+      { error: message },
       { status: 500 }
     );
   }

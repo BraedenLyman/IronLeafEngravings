@@ -3,6 +3,10 @@ env:
     value: "https://iron-leaf.ca"
     availability: [ BUILD, RUNTIME ]
 
+  - variable: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+    secret: "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"
+    availability: [BUILD, RUNTIME]
+
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
     value: "AIzaSyCArKuNwgLAOFfwpQLZ_X5Dgd7EQgV6Zmc"
     availability: [ BUILD, RUNTIME ]
@@ -29,10 +33,6 @@ env:
 
   - variable: STRIPE_WEBHOOK_SECRET
     secret: STRIPE_WEBHOOK_SECRET
-    availability: [ BUILD, RUNTIME ]
-
-  - variable: STRIPE_PRICE_OVERRIDE_CENTS
-    value: "100"
     availability: [ BUILD, RUNTIME ]
 
   - variable: SMTP_HOST

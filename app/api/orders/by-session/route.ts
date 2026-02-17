@@ -7,34 +7,53 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const sessionId = String(searchParams.get("session_id") ?? "").trim();
+    const paymentIntentId = String(searchParams.get("payment_intent") ?? "").trim();
 
-    if (!sessionId) {
-      return NextResponse.json({ error: "Missing session_id" }, { status: 400 });
+    if (!sessionId && !paymentIntentId) {
+      return NextResponse.json({ error: "Missing session_id or payment_intent" }, { status: 400 });
     }
 
-    const sessionSnap = await adminDb.collection("orderSessions").doc(sessionId).get();
+    const lookupId = sessionId || paymentIntentId;
+    const sessionSnap = await adminDb.collection("orderSessions").doc(lookupId).get();
     if (sessionSnap.exists) {
       const orderId = String(sessionSnap.data()?.orderId ?? "");
       if (orderId) return NextResponse.json({ orderId });
     }
 
-    const ordersSnap = await adminDb
-      .collection("orders")
-      .where("stripeSessionId", "==", sessionId)
-      .limit(1)
-      .get();
+    if (sessionId) {
+      const ordersSnap = await adminDb
+        .collection("orders")
+        .where("stripeSessionId", "==", sessionId)
+        .limit(1)
+        .get();
 
-    if (!ordersSnap.empty) {
-      const order = ordersSnap.docs[0]?.data();
-      const orderId = String(order?.orderId ?? ordersSnap.docs[0]?.id ?? "");
-      if (orderId) return NextResponse.json({ orderId });
+      if (!ordersSnap.empty) {
+        const order = ordersSnap.docs[0]?.data();
+        const orderId = String(order?.orderId ?? ordersSnap.docs[0]?.id ?? "");
+        if (orderId) return NextResponse.json({ orderId });
+      }
+    }
+
+    if (paymentIntentId) {
+      const ordersSnap = await adminDb
+        .collection("orders")
+        .where("stripePaymentIntentId", "==", paymentIntentId)
+        .limit(1)
+        .get();
+
+      if (!ordersSnap.empty) {
+        const order = ordersSnap.docs[0]?.data();
+        const orderId = String(order?.orderId ?? ordersSnap.docs[0]?.id ?? "");
+        if (orderId) return NextResponse.json({ orderId });
+      }
     }
 
     return NextResponse.json({ orderId: null }, { status: 404 });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to load order ID";
     console.error("GET /api/orders/by-session error:", err);
     return NextResponse.json(
-      { error: err?.message ?? "Failed to load order ID" },
+      { error: message },
       { status: 500 }
     );
   }

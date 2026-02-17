@@ -87,6 +87,7 @@ export default function ProductClient({ slug }: { slug: string }) {
         ]
 
       : product.keyPoints;
+  const displayPriceCents = product.slug === "wooden-coasters" ? 999 : product.priceCents;
 
   return (
     <section className={shared.container}>
@@ -176,7 +177,7 @@ export default function ProductClient({ slug }: { slug: string }) {
               <ProductBadges badges={product.badges} />
               <div className={styles.priceRow}>
                 <span className={styles.priceText}>
-                  ${((product.priceCents ?? 0) / 100).toFixed(2)}{" "}
+                  ${((displayPriceCents ?? 0) / 100).toFixed(2)}{" "}
                   <span className={styles.muted}>/ set</span>
                 </span>
                 {product.slug !== "wooden-coasters" && (

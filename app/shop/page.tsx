@@ -23,7 +23,7 @@ export default function ShopPage() {
               <ProductCard
                 title="Wooden Coasters"
                 description="Natural wood with a warm finish — perfect for family photos."
-                price="$29.99"
+                price="$9.99"
                 image="/products/wooden-coaster.jpg"
                 href="/shop/wooden-coasters"
               />

@@ -15,11 +15,57 @@ function shortId(id: string) {
 export default function SuccessClient() {
   const searchParams = useSearchParams();
   const session_id = searchParams.get("session_id");
+  const payment_intent = searchParams.get("payment_intent");
+  const confirmationId = session_id || payment_intent;
   const [copied, setCopied] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [loadingOrderId, setLoadingOrderId] = useState(false);
   const { clear } = useCart();
-  if (!session_id) {
+
+  const handleCopy = async () => {
+    const value = orderId || confirmationId;
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!confirmationId) return;
+    let cancelled = false;
+
+    clear();
+
+    const load = async () => {
+      setLoadingOrderId(true);
+      try {
+        const q = session_id
+          ? `session_id=${encodeURIComponent(session_id)}`
+          : `payment_intent=${encodeURIComponent(payment_intent ?? "")}`;
+        const res = await fetch(`/api/orders/by-session?${q}`);
+        if (!res.ok) return;
+        const data = (await res.json()) as { orderId?: string | null };
+        if (!cancelled && data.orderId) {
+          setOrderId(String(data.orderId));
+        }
+      } catch {
+      
+      } finally {
+        if (!cancelled) setLoadingOrderId(false);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [clear, confirmationId, payment_intent, session_id]);
+
+  if (!confirmationId) {
     return (
       <main className={styles.page}>
         <section className={styles.container}>
@@ -27,9 +73,9 @@ export default function SuccessClient() {
             <div className={styles.headerRow}>
               <div className={styles.badgeWarn}>!</div>
               <div>
-                <h1 className={styles.title}>We couldn't find your confirmation</h1>
+                <h1 className={styles.title}>We couldn&apos;t find your confirmation</h1>
                 <p className={styles.subtitle}>
-                  The checkout session id is missing. If you think you were charged, contact us and we'll help right away.
+                  The checkout session id is missing. If you think you were charged, contact us and we&apos;ll help right away.
                 </p>
               </div>
             </div>
@@ -48,47 +94,7 @@ export default function SuccessClient() {
     );
   }
 
-  const handleCopy = async () => {
-    const value = orderId || session_id;
-    if (!value) return;
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1500);
-    } catch {
-      setCopied(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!session_id) return;
-    let cancelled = false;
-
-    clear();
-
-    const load = async () => {
-      setLoadingOrderId(true);
-      try {
-        const res = await fetch(`/api/orders/by-session?session_id=${encodeURIComponent(session_id)}`);
-        if (!res.ok) return;
-        const data = (await res.json()) as { orderId?: string | null };
-        if (!cancelled && data.orderId) {
-          setOrderId(String(data.orderId));
-        }
-      } catch {
-      
-      } finally {
-        if (!cancelled) setLoadingOrderId(false);
-      }
-    };
-
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [session_id]);
-
-  const displayId = orderId || session_id || "";
+  const displayId = orderId || confirmationId || "";
   const showOrderId = Boolean(orderId);
 
   return (

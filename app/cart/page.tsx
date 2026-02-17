@@ -3,8 +3,7 @@
 import Header from "../components/header/Header";
 import shared from "../shared-page/shared-page.module.css";
 import styles from "./cart.module.css";
-import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useCart } from "../components/cart/CartContext";
 import { Button } from "antd";
 import { FaArrowDown } from "react-icons/fa";
@@ -14,56 +13,20 @@ function formatMoney(cents: number) {
 }
 
 export default function CartPage() {
-  const { items, removeItem, subtotalCents, clear } = useCart();
-
-  const [loading, setLoading] = useState(false);
-  const [serverError, setServerError] = useState("");
+  const { items, removeItem, clear } = useCart();
 
   const itemCount = useMemo(
     () => items.reduce((sum, i) => sum + (i.quantity ?? 0), 0),
     [items]
   );
-
-  const handleCheckout = async () => {
-    setServerError("");
-
-    if (items.length === 0) {
-      setServerError("Your cart is empty.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-        const res = await fetch("/api/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            items: items.map((i) => ({
-              name: i.title,
-              quantity: i.quantity,
-              priceInCents: i.unitPriceCents,
-              uploadedImageUrl: i.uploadedImageUrl,
-              uploadedFileName: i.uploadedFileName,
-            })),
-            productSlug: "cart",
-            uploadedFileName: items
-              .map((i) => i.uploadedFileName)
-              .filter(Boolean)
-              .join(", "),
-          }),
-        });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? "Checkout failed");
-      if (!data?.url) throw new Error("No checkout URL returned");
-
-      window.location.href = data.url;
-    } catch (e: any) {
-      setServerError(e?.message ?? "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const subtotalCents = useMemo(
+    () =>
+      items.reduce((sum, i) => {
+        const unitPrice = i.slug === "wooden-coasters" ? 999 : i.unitPriceCents;
+        return sum + unitPrice * (i.quantity ?? 0);
+      }, 0),
+    [items]
+  );
 
   return (
     <main className={shared.page}>
@@ -94,12 +57,6 @@ export default function CartPage() {
               Pick a product, upload an image, and we’ll engrave it onto your item.
             </p>
 
-            {serverError ? (
-              <p className={styles.note}>
-                {serverError}
-              </p>
-            ) : null}
-
             <Button className={shared.pBtn} href="/shop">
               Continue shopping
             </Button>
@@ -118,7 +75,8 @@ export default function CartPage() {
               <div className={styles.items}>
                 {items.map((i) => {
                   const qty = i.quantity ?? 0;
-                  const lineTotal = i.unitPriceCents * qty;
+                  const unitPrice = i.slug === "wooden-coasters" ? 999 : i.unitPriceCents;
+                  const lineTotal = unitPrice * qty;
                   const productThumb = i.productImageUrl ?? i.imagePreviewUrl ?? i.uploadedImageUrl;
                   const uploadedPreview = i.uploadedImageUrl ?? i.imagePreviewUrl;
 
@@ -234,20 +192,9 @@ export default function CartPage() {
                 </div>
 
     
-                {serverError ? (
-                  <p className={styles.note} >
-                    {serverError}
-                  </p>
-                ) : null}
-
-                <button
-                  className={shared.pBtn}
-                  onClick={handleCheckout}
-                  disabled={loading}
-                  type="button"
-                >
-                  {loading ? "Starting checkout..." : "Checkout"}
-                </button>
+                <Button className={shared.pBtn} href="/checkout-confirm">
+                  Checkout
+                </Button>
 
                 <Button className={shared.sBtn} href="/shop">
                   Add more items
