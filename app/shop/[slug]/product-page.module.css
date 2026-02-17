@@ -419,16 +419,27 @@
 
 @media (max-width: 950px) {
   .layout {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
   }
  
   .imageStack {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     margin-left: -15px;
   }
 
+  .btnContainer {
+    width: 100%;
+    display: flex;
+    margin-left: 8px;
+  }
+
   .details {
-    margin-left: -15px;
-    margin-right: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .section {
@@ -439,14 +450,39 @@
     flex-direction: column;
     gap: 20px;
   }
+
+  .setSize {
+    margin-left: 15px;
+  }
   
   .qtyRow {
-    flex-direction: column;
-    align-items: flex-start;
+    margin-left:  15px;
   }
 
-  .btnContainerMain {
-    width: 100%;
-    max-width: 320px;
+  .btnDiv {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 300px;
+    margin-top: 20px;
+  }
+
+  .included {
+    display: flex;
+    flex-direction: column;
+    max-width: 300px;
+    justify-content: center;
+    align-items: center;
+    margin-left: 15px;
+  }
+
+  .includedValue {
+    text-align: center;
+  }
+
+  .actionRow {
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
   }
 }

@@ -1,4 +1,3 @@
-/* Layout */
 .grid {
   display: grid;
   grid-template-columns: 1.5fr 0.9fr;
@@ -203,7 +202,7 @@
   border-radius: 14px;
   padding: 8px 10px;
   background: rgba(0,0,0,0.18);
-  width: 310px;
+  width: min(100%, 340px);
 }
 
 .uploadSummary {
@@ -239,7 +238,7 @@
 }
 
 .uploadThumbWrap {
-  width: 140px;
+  width: min(140px, 100%);
   height: 140px;
   border-radius: 14px;
   overflow: hidden;
@@ -380,29 +379,95 @@
   line-height: 1.5;
 }
 
-/* Responsive */
 @media (max-width: 980px) {
   .grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
   .summary {
     position: static;
   }
   .heroRow {
-    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  .summaryCard {
+    padding: 16px;
+  }
+  .card {
+    padding: 16px;
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 760px) {
+  .container {
+    padding-inline: 14px;
+  }
+  .cardHeader {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 4px 12px;
+  }
   .item {
     grid-template-columns: 74px 1fr;
+    gap: 12px;
+    padding: 12px;
   }
   .thumbWrap {
     width: 74px;
     height: 74px;
   }
+  .itemTitleRow {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .itemTitle {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.3;
+  }
+  .itemPrice {
+    font-size: 1rem;
+  }
+  .uploadDetails {
+    width: 100%;
+  }
+  .uploadThumbWrap {
+    width: 120px;
+    height: 120px;
+  }
+  .summaryRows {
+    padding-bottom: 10px;
+  }
+  .emptyCard {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 520px) {
+  .item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .thumbWrap {
+    width: 88px;
+    height: 88px;
+  }
   .itemTop {
     flex-direction: column;
     align-items: flex-start;
+    gap: 6px;
+  }
+  .itemActions {
+    width: 100%;
+  }
+  .dangerBtn {
+    width: 100%;
+  }
+  .actions {
+    width: 100%;
+  }
+  .emptyText {
+    font-size: 0.95rem;
   }
 }

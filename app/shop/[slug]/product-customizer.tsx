@@ -137,9 +137,12 @@ export default function ProductCustomizer({
             </div>
           </div>
           
-          <Button className={shared.pBtn} disabled={!canSubmit} onClick={handleAddToCart} >
+          <div className={styles.btnDiv}>
+            <Button className={shared.pBtn} disabled={!canSubmit} onClick={handleAddToCart} >
             {adding ? "Adding..." : "Add to Cart"}
-          </Button>
+            </Button>
+          </div>
+          
         
 
           {product.slug !== "wooden-coasters" && (
