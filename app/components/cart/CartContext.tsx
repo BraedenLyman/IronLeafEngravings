@@ -27,7 +27,6 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-
   useEffect(() => {
     const raw = localStorage.getItem("ironleaf_cart");
     if (raw) {
