@@ -13,6 +13,43 @@ import { SHIPPING_CENTS_BY_COUNTRY } from "@/app/lib/checkoutPricing";
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
+const stripeElementsAppearance = {
+  theme: "night" as const,
+  variables: {
+    colorPrimary: "#D48C3A",
+    colorBackground: "#141414",
+    colorText: "#BFC3C7",
+    colorTextSecondary: "#6F747A",
+    colorDanger: "#ff7878",
+    borderRadius: "12px",
+    spacingUnit: "4px",
+    fontFamily: "Arial, Helvetica, sans-serif",
+  },
+  rules: {
+    ".Input": {
+      backgroundColor: "#141414",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      boxShadow: "none",
+    },
+    ".Input:focus": {
+      border: "1px solid #D48C3A",
+      boxShadow: "0 0 0 2px rgba(212, 140, 58, 0.25)",
+    },
+    ".Block": {
+      backgroundColor: "#141414",
+      border: "1px solid rgba(255, 255, 255, 0.08)",
+      boxShadow: "none",
+    },
+    ".Tab, .PickerItem": {
+      backgroundColor: "#141414",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+    },
+    ".Tab--selected, .PickerItem--selected": {
+      border: "1px solid #D48C3A",
+      boxShadow: "none",
+    },
+  },
+};
 
 function formatMoney(cents: number) {
   return `$${(cents / 100).toFixed(2)}`;
@@ -247,9 +284,11 @@ export default function CheckoutConfirmPage() {
                 stripePromise ? (
                   <div style={{ marginTop: 16 }}>
                     <h2 className={styles.cardTitle}>Payment details</h2>
-                    <Elements options={{ clientSecret }} stripe={stripePromise}>
+                    <div className={styles.stripeShell}>
+                      <Elements options={{ clientSecret, appearance: stripeElementsAppearance }} stripe={stripePromise}>
                       <StripePaymentForm shipping={shipping} setServerError={setServerError} />
-                    </Elements>
+                      </Elements>
+                    </div>
                   </div>
                 ) : (
                   <p className={styles.serverError}>Missing `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`.</p>

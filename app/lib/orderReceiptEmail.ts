@@ -25,6 +25,7 @@ type SendReceiptInput = {
   createdAt: Date;
   currency: string;
   amountTotal: number | null;
+  shippingAmount?: number | null;
   items: ReceiptLineItem[];
   shipping?: ReceiptShipping | null;
 };
@@ -93,6 +94,7 @@ function renderReceiptText(input: SendReceiptInput) {
     "Items:",
     lines || "—",
     "",
+    ...(input.shippingAmount != null ? [`Shipping: ${formatMoney(input.shippingAmount, input.currency)}`] : []),
     `Total: ${formatMoney(input.amountTotal, input.currency)}`,
     shippingBlock.trim(),
   ]
@@ -125,6 +127,16 @@ function renderReceiptHtml(input: SendReceiptInput) {
     <table style="width:100%; border-collapse:collapse;">
       <tbody>
         ${itemsHtml || `<tr><td style="padding:8px 0;">—</td><td></td></tr>`}
+        ${
+          input.shippingAmount != null
+            ? `
+        <tr>
+          <td style="padding:8px 0;">Shipping</td>
+          <td style="padding:8px 0; text-align:right;">${formatMoney(input.shippingAmount, input.currency)}</td>
+        </tr>
+      `
+            : ""
+        }
         <tr>
           <td style="padding:12px 0; border-top:1px solid #e5e7eb;"><strong>Total</strong></td>
           <td style="padding:12px 0; border-top:1px solid #e5e7eb; text-align:right;"><strong>${formatMoney(input.amountTotal, input.currency)}</strong></td>

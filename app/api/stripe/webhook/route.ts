@@ -45,6 +45,7 @@ type PendingCheckout = {
   imageUrl?: string;
   uploadedImageUrl?: string;
   shipping?: StoredShipping;
+  shippingCents?: number;
   items?: PendingItem[];
 };
 
@@ -189,6 +190,7 @@ async function handleCheckoutSessionCompleted(stripe: Stripe, sessionFromEvent: 
         createdAt: new Date((session.created ?? Math.floor(Date.now() / 1000)) * 1000),
         currency: session.currency ?? "cad",
         amountTotal: session.amount_total ?? null,
+        shippingAmount: session.total_details?.amount_shipping ?? pendingData?.shippingCents ?? null,
         items: lineItemsForEmail.data.map((item) => ({
           name: item.description ?? "Item",
           quantity: item.quantity ?? 1,
@@ -322,6 +324,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
         createdAt: new Date((paymentIntent.created ?? Math.floor(Date.now() / 1000)) * 1000),
         currency: paymentIntent.currency ?? "cad",
         amountTotal: paymentIntent.amount_received || paymentIntent.amount || null,
+        shippingAmount: pendingData?.shippingCents ?? null,
         items: notifyItems,
         shipping: shippingToStore,
       });

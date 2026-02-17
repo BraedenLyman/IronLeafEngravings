@@ -180,7 +180,7 @@ export default function CartPage() {
 
                   <div className={styles.summaryRow}>
                     <span className={styles.muted}>Shipping</span>
-                    <span className={styles.muted}>Calculated in Stripe</span>
+                    <span className={styles.muted}>Calculated on next page</span>
                   </div>
 
                   <div className={styles.divider} />
@@ -200,9 +200,6 @@ export default function CartPage() {
                   Add more items
                 </Button>
 
-                <p className={styles.note}>
-                  You’ll be redirected to Stripe to complete payment securely.
-                </p>
               </div>
             </aside>
           </div>

@@ -160,9 +160,17 @@
 }
 
 .note {
-  margin-top: 10px;
+  margin-top: 20px;
   font-size: 0.85rem;
   opacity: 0.85;
+  text-align: center;
+}
+
+.stripeShell {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #141414;
+  padding: 12px;
 }
 
 .emptyCard {
