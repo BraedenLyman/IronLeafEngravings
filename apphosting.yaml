@@ -4,7 +4,7 @@ env:
     availability: [ BUILD, RUNTIME ]
 
   - variable: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-    secret: "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"
+    value: "pk_live_51Sstb9CmXH90Tjj81xGkbw7ZkQyTp36if3AX2g40PjEiRbyODuhewrrWVvqF0qihZYfq1APDDDNHmIhUHVyVgASI00CUgsjC5E"
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
