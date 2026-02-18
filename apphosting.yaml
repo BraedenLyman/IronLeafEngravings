@@ -32,7 +32,15 @@ env:
     availability: [ BUILD, RUNTIME ]
 
   - variable: NEXT_PUBLIC_META_PIXEL_ID
-    value: "1588010365868492"
+    value: "1391432315574568"
+    availability: [ BUILD, RUNTIME ]
+
+  - variable: META_PIXEL_ID
+    value: "1391432315574568"
+    availability: [ BUILD, RUNTIME ]
+
+  - variable: META_ACCESS_TOKEN
+    secret: META_ACCESS_TOKEN
     availability: [ BUILD, RUNTIME ]
 
   - variable: STRIPE_SECRET_KEY

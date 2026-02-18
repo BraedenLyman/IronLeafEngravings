@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { useCart } from "../components/cart/CartContext";
 import { Button } from "antd";
 import { FaArrowDown } from "react-icons/fa";
+import { trackMetaEvent } from "@/app/lib/metaPixel";
 
 function formatMoney(cents: number) {
   return `$${(cents / 100).toFixed(2)}`;
@@ -27,6 +28,15 @@ export default function CartPage() {
       }, 0),
     [items]
   );
+
+  const handleCheckoutClick = () => {
+    trackMetaEvent("InitiateCheckout", {
+      content_type: "product",
+      currency: "CAD",
+      value: subtotalCents / 100,
+      num_items: itemCount,
+    });
+  };
 
   return (
     <main className={shared.page}>
@@ -192,7 +202,7 @@ export default function CartPage() {
                 </div>
 
     
-                <Button className={shared.pBtn} href="/checkout-confirm">
+                <Button className={shared.pBtn} href="/checkout-confirm" onClick={handleCheckoutClick}>
                   Checkout
                 </Button>
 

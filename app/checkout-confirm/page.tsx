@@ -10,6 +10,7 @@ import styles from "./checkout-confirm.module.css";
 import { useCart } from "../components/cart/CartContext";
 import { Button } from "antd";
 import { SHIPPING_CENTS_BY_COUNTRY } from "@/app/lib/checkoutPricing";
+import { trackMetaEvent } from "@/app/lib/metaPixel";
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
@@ -367,6 +368,8 @@ function StripePaymentForm({
       setServerError("Payment form is still loading.");
       return;
     }
+
+    trackMetaEvent("AddPaymentInfo");
 
     setSubmitting(true);
     try {

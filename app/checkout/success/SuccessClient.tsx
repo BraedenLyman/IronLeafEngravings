@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./success.module.css";
 import { FaCheck, FaRegCopy } from "react-icons/fa";
 import { useCart } from "@/app/components/cart/CartContext";
+import { trackMetaEvent } from "@/app/lib/metaPixel";
 
 function shortId(id: string) {
   if (id.length <= 14) return id;
@@ -26,6 +27,7 @@ export default function SuccessClient() {
   const [loadingOrderId, setLoadingOrderId] = useState(false);
   const { clear } = useCart();
   const hasClearedCart = useRef(false);
+  const hasTrackedPurchase = useRef(false);
 
   const handleCopy = async () => {
     const value = orderId;
@@ -81,6 +83,13 @@ export default function SuccessClient() {
     return () => {
       cancelled = true;
     };
+  }, [confirmationId, payment_intent, session_id]);
+
+  useEffect(() => {
+    if (!confirmationId || hasTrackedPurchase.current) return;
+    const eventId = session_id ? `purchase_${session_id}` : `purchase_${payment_intent}`;
+    trackMetaEvent("Purchase", undefined, eventId);
+    hasTrackedPurchase.current = true;
   }, [confirmationId, payment_intent, session_id]);
 
   if (!confirmationId) {

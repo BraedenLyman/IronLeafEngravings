@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { trackMetaEvent } from "@/app/lib/metaPixel";
 
 declare global {
   interface Window {
     dataLayer: unknown[];
     gtag: (...args: unknown[]) => void;
-    fbq: (...args: unknown[]) => void;
   }
 }
 
@@ -33,8 +33,8 @@ export function AnalyticsTracker({
       });
     }
 
-    if (metaPixelId && typeof window.fbq === "function") {
-      window.fbq("track", "PageView");
+    if (metaPixelId) {
+      trackMetaEvent("PageView");
     }
   }, [measurementId, metaPixelId, pathname, searchParams]);
 

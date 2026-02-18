@@ -7,6 +7,7 @@ import QuantityPicker from "../../components/quantity-picker/quantity-picker";
 import { useCart } from "../../components/cart/CartContext";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/app/lib/firebaseClient";
+import { trackMetaEvent } from "@/app/lib/metaPixel";
 import { Button } from "antd";
 
 const COASTER_SET_OPTIONS = [
@@ -96,6 +97,15 @@ export default function ProductCustomizer({
         imagePreviewUrl: previewUrl,
         uploadedImageUrl: imageUrl,
         uploadedFileName: file.name,
+      });
+
+      trackMetaEvent("AddToCart", {
+        content_type: "product",
+        content_name: product.title,
+        content_ids: [product.slug],
+        currency: "CAD",
+        value: (unitPriceCents * qty) / 100,
+        num_items: qty,
       });
 
       setAdded(true);

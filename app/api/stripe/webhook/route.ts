@@ -4,11 +4,35 @@ import admin from "firebase-admin";
 import { getStripe } from "@/app/lib/stripe";
 import { adminDb } from "@/app/lib/firebaseAdmin";
 import { sendOrderNotificationEmail, sendOrderReceiptEmail } from "@/app/lib/orderReceiptEmail";
+import { sendMetaConversionEvent } from "@/app/lib/metaConversions";
 
 export const runtime = "nodejs";
 
 function formatOrderId(seq: number) {
   return `IL-${String(seq).padStart(4, "0")}`;
+}
+
+function splitName(name?: string | null) {
+  const raw = String(name ?? "").trim();
+  if (!raw) return { firstName: "", lastName: "" };
+  const parts = raw.split(/\s+/);
+  return {
+    firstName: parts[0] ?? "",
+    lastName: parts.slice(1).join(" "),
+  };
+}
+
+function getAddressParts(address: unknown) {
+  if (!address || typeof address !== "object") {
+    return { city: "", state: "", postalCode: "", country: "" };
+  }
+  const record = address as Record<string, unknown>;
+  return {
+    city: String(record.city ?? ""),
+    state: String(record.state ?? ""),
+    postalCode: String(record.postal_code ?? ""),
+    country: String(record.country ?? ""),
+  };
 }
 
 type SessionWithShipping = Stripe.Checkout.Session & {
@@ -228,6 +252,30 @@ async function handleCheckoutSessionCompleted(stripe: Stripe, sessionFromEvent: 
     console.error("Order notification failed:", err);
   }
 
+  const shippingAddress = getAddressParts(shippingToStore?.address ?? null);
+  const { firstName, lastName } = splitName(customerDetails?.name ?? pendingShipping?.name ?? "");
+  await sendMetaConversionEvent({
+    eventName: "Purchase",
+    eventId: `purchase_${session.id}`,
+    eventTime: session.created ?? Math.floor(Date.now() / 1000),
+    actionSource: "website",
+    customData: {
+      currency: String((session.currency ?? "cad")).toUpperCase(),
+      value: Number(session.amount_total ?? 0) / 100,
+      order_id: orderId,
+    },
+    userData: {
+      email: customerDetails?.email ?? pendingShipping?.email ?? "",
+      phone: customerDetails?.phone ?? pendingShipping?.phone ?? "",
+      firstName,
+      lastName,
+      city: shippingAddress.city,
+      state: shippingAddress.state,
+      zip: shippingAddress.postalCode,
+      country: shippingAddress.country,
+    },
+  });
+
   return NextResponse.json({ received: true });
 }
 
@@ -348,6 +396,30 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
   } catch (err) {
     console.error("Order notification failed:", err);
   }
+
+  const shippingAddress = getAddressParts(shippingToStore?.address ?? null);
+  const { firstName, lastName } = splitName(customerName ?? "");
+  await sendMetaConversionEvent({
+    eventName: "Purchase",
+    eventId: `purchase_${paymentIntent.id}`,
+    eventTime: paymentIntent.created ?? Math.floor(Date.now() / 1000),
+    actionSource: "website",
+    customData: {
+      currency: String((paymentIntent.currency ?? "cad")).toUpperCase(),
+      value: Number(paymentIntent.amount_received || paymentIntent.amount || 0) / 100,
+      order_id: orderId,
+    },
+    userData: {
+      email: customerEmail ?? "",
+      phone: customerPhone ?? "",
+      firstName,
+      lastName,
+      city: shippingAddress.city,
+      state: shippingAddress.state,
+      zip: shippingAddress.postalCode,
+      country: shippingAddress.country,
+    },
+  });
 
   return NextResponse.json({ received: true });
 }
