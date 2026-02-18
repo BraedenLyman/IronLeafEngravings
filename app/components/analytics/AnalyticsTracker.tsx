@@ -7,25 +7,36 @@ declare global {
   interface Window {
     dataLayer: unknown[];
     gtag: (...args: unknown[]) => void;
+    fbq: (...args: unknown[]) => void;
   }
 }
 
-export function AnalyticsTracker({ measurementId }: { measurementId: string }) {
+export function AnalyticsTracker({
+  measurementId,
+  metaPixelId,
+}: {
+  measurementId: string;
+  metaPixelId: string;
+}) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!measurementId || typeof window.gtag !== "function") return;
-
     const query = searchParams?.toString();
     const pagePath = query ? `${pathname}?${query}` : pathname;
 
-    window.gtag("config", measurementId, {
-      page_path: pagePath,
-      page_location: window.location.href,
-      page_title: document.title,
-    });
-  }, [measurementId, pathname, searchParams]);
+    if (measurementId && typeof window.gtag === "function") {
+      window.gtag("config", measurementId, {
+        page_path: pagePath,
+        page_location: window.location.href,
+        page_title: document.title,
+      });
+    }
+
+    if (metaPixelId && typeof window.fbq === "function") {
+      window.fbq("track", "PageView");
+    }
+  }, [measurementId, metaPixelId, pathname, searchParams]);
 
   return null;
 }

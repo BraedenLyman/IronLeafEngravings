@@ -31,6 +31,10 @@ env:
     value: "G-EB8B744D9V"
     availability: [ BUILD, RUNTIME ]
 
+  - variable: NEXT_PUBLIC_META_PIXEL_ID
+    value: "1588010365868492"
+    availability: [ BUILD, RUNTIME ]
+
   - variable: STRIPE_SECRET_KEY
     secret: STRIPE_SECRET_KEY
     availability: [ BUILD, RUNTIME ]
