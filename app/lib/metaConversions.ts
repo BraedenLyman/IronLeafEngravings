@@ -82,11 +82,12 @@ function getMetaConfig() {
   const pixelId = process.env.META_PIXEL_ID ?? process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "";
   const accessToken = process.env.META_ACCESS_TOKEN ?? "";
   const apiVersion = process.env.META_API_VERSION ?? "v23.0";
-  return { pixelId, accessToken, apiVersion };
+  const testEventCode = process.env.META_TEST_EVENT_CODE ?? "";
+  return { pixelId, accessToken, apiVersion, testEventCode };
 }
 
 export async function sendMetaConversionEvent(input: MetaEventInput) {
-  const { pixelId, accessToken, apiVersion } = getMetaConfig();
+  const { pixelId, accessToken, apiVersion, testEventCode } = getMetaConfig();
   if (!pixelId || !accessToken) return { sent: false as const, reason: "missing_config" as const };
 
   const url = `https://graph.facebook.com/${apiVersion}/${pixelId}/events?access_token=${encodeURIComponent(accessToken)}`;
@@ -102,6 +103,7 @@ export async function sendMetaConversionEvent(input: MetaEventInput) {
         custom_data: input.customData ?? {},
       },
     ],
+    ...(testEventCode ? { test_event_code: testEventCode } : {}),
   };
 
   try {

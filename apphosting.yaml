@@ -43,6 +43,10 @@ env:
     secret: META_ACCESS_TOKEN
     availability: [ BUILD, RUNTIME ]
 
+  - variable: META_TEST_EVENT_CODE
+    value: "TEST79620"
+    availability: [ BUILD, RUNTIME ]
+
   - variable: STRIPE_SECRET_KEY
     secret: STRIPE_SECRET_KEY
     availability: [ BUILD, RUNTIME ]
