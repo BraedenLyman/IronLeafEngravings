@@ -16,10 +16,7 @@ const COASTER_SET_OPTIONS = [
   { label: "Set of 4 Coasters", value: 4 },
   { label: "Set of 6 Coasters", value: 6 },
   { label: "Set of 8 Coasters", value: 8 },
-  { label: "Set of 12 Coasters", value: 12 },
-  { label: "Set of 24 Coasters", value: 24 },
-  { label: "Set of 50 Coasters", value: 50 },
-  { label: "Set of 100 Coasters", value: 100 },
+  { label: "Set of 12 Coasters", value: 12 }
 ] as const;
 
 type Product = {
