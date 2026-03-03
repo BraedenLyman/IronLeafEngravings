@@ -183,6 +183,9 @@ export async function POST(req: Request) {
       metadata: {
         pendingOrderId: pendingRef.id,
         productSlug: body.productSlug ?? "cart",
+        subtotalCents: String(subtotalCents),
+        shippingCents: String(shippingCents),
+        amountTotalCents: String(amountTotalCents),
       },
     });
 

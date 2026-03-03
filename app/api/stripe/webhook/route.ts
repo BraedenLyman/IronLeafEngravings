@@ -374,16 +374,34 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
   });
 
   const notifyItems = mapPendingItemsForEmail(pendingData?.items ?? []);
+  const metadataSubtotal = Number(paymentIntent.metadata?.subtotalCents ?? "");
+  const metadataShipping = Number(paymentIntent.metadata?.shippingCents ?? "");
+  const metadataTotal = Number(paymentIntent.metadata?.amountTotalCents ?? "");
   const chargedTotal = Number(paymentIntent.amount_received || paymentIntent.amount || 0);
   const pendingSubtotal = Number(pendingData?.subtotalCents ?? 0);
   const pendingShippingCents = Number(pendingData?.shippingCents ?? 0);
-  const derivedShippingFromCharge = chargedTotal - pendingSubtotal;
+  const lockedSubtotal = Number.isFinite(metadataSubtotal) && metadataSubtotal >= 0 ? metadataSubtotal : pendingSubtotal;
+  const lockedShipping = Number.isFinite(metadataShipping) && metadataShipping >= 0 ? metadataShipping : pendingShippingCents;
+  const lockedTotal = Number.isFinite(metadataTotal) && metadataTotal > 0 ? metadataTotal : lockedSubtotal + lockedShipping;
+  const derivedShippingFromCharge = chargedTotal - lockedSubtotal;
   const finalShippingAmount =
-    Number.isFinite(derivedShippingFromCharge) && derivedShippingFromCharge >= 0
+    lockedShipping > 0
+      ? lockedShipping
+      : Number.isFinite(derivedShippingFromCharge) && derivedShippingFromCharge >= 0
       ? derivedShippingFromCharge
       : pendingShippingCents > 0
         ? pendingShippingCents
         : null;
+
+  if (lockedTotal > 0 && chargedTotal > 0 && chargedTotal !== lockedTotal) {
+    console.error("PaymentIntent total mismatch. Charged amount differs from locked quote.", {
+      paymentIntentId: paymentIntent.id,
+      chargedTotal,
+      lockedTotal,
+      lockedSubtotal,
+      lockedShipping,
+    });
+  }
 
   await markPendingCompleted(pendingOrderId, {
     stripePaymentIntentId: paymentIntent.id,
