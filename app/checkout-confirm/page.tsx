@@ -9,7 +9,6 @@ import shared from "../shared-page/shared-page.module.css";
 import styles from "./checkout-confirm.module.css";
 import { useCart } from "../components/cart/CartContext";
 import { Button } from "antd";
-import { SHIPPING_CENTS_BY_COUNTRY } from "@/app/lib/checkoutPricing";
 import { trackMetaEvent } from "@/app/lib/metaPixel";
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
@@ -68,6 +67,11 @@ type ShippingDetails = {
   country: string;
 };
 
+type AddressSuggestion = {
+  placeId: string;
+  text: string;
+};
+
 const initialShipping: ShippingDetails = {
   fullName: "",
   email: "",
@@ -88,7 +92,13 @@ export default function CheckoutConfirmPage() {
   const [serverError, setServerError] = useState("");
   const [clientSecret, setClientSecret] = useState("");
   const [lastIntentKey, setLastIntentKey] = useState("");
+  const [quotedShippingCents, setQuotedShippingCents] = useState(0);
+  const [quotedTotalCents, setQuotedTotalCents] = useState(0);
+  const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const requestSeq = useRef(0);
+  const suggestSeq = useRef(0);
 
   const itemCount = useMemo(
     () => items.reduce((sum, i) => sum + (i.quantity ?? 0), 0),
@@ -103,8 +113,8 @@ export default function CheckoutConfirmPage() {
       }, 0),
     [items]
   );
-  const shippingCents = SHIPPING_CENTS_BY_COUNTRY[shipping.country] ?? 0;
-  const totalCents = subtotalCents + shippingCents;
+  const shippingCents = quotedShippingCents;
+  const totalCents = quotedTotalCents || subtotalCents + shippingCents;
 
   const getValidationErrors = useCallback(() => {
     const next: Record<string, string> = {};
@@ -123,6 +133,9 @@ export default function CheckoutConfirmPage() {
 
     if (shipping.email && !/^\S+@\S+\.\S+$/.test(shipping.email)) {
       next.email = "Enter a valid email";
+    }
+    if (shipping.fullName && shipping.fullName.trim().length < 2) {
+      next.fullName = "Enter at least 2 characters";
     }
     if (shipping.country === "CA" && shipping.postalCode) {
       const cleaned = shipping.postalCode.replace(/\s+/g, "").toUpperCase();
@@ -143,6 +156,7 @@ export default function CheckoutConfirmPage() {
     () => ({
       items: items.map((i) => ({
         slug: i.slug,
+        shippingProfileKey: i.shippingProfileKey,
         name: i.title,
         quantity: i.quantity,
         priceInCents: i.unitPriceCents,
@@ -163,6 +177,8 @@ export default function CheckoutConfirmPage() {
   const setField = (key: keyof ShippingDetails, value: string) => {
     setShipping((prev) => ({ ...prev, [key]: value }));
     setClientSecret("");
+    setQuotedShippingCents(0);
+    setQuotedTotalCents(0);
     setServerError("");
     setErrors((prev) => {
       const next = { ...prev };
@@ -170,6 +186,77 @@ export default function CheckoutConfirmPage() {
       return next;
     });
   };
+
+  const handleAddress1Change = (value: string) => {
+    setField("address1", value);
+    setShowAddressSuggestions(true);
+  };
+
+  const applyPlaceSuggestion = useCallback(async (placeId: string) => {
+    if (!placeId) return;
+    try {
+      setIsLoadingSuggestions(true);
+      setServerError("");
+      const res = await fetch(`/api/shipping/address-details?placeId=${encodeURIComponent(placeId)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Failed to load selected address");
+
+      const normalized = data?.normalizedShipping as Partial<ShippingDetails> | undefined;
+      if (normalized) {
+        setShipping((prev) => ({
+          ...prev,
+          address1: String(normalized.address1 ?? prev.address1),
+          city: String(normalized.city ?? prev.city),
+          province: String(normalized.province ?? prev.province),
+          postalCode: String(normalized.postalCode ?? prev.postalCode),
+          country: String(normalized.country ?? prev.country),
+        }));
+      }
+      setAddressSuggestions([]);
+      setShowAddressSuggestions(false);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to apply selected address";
+      setServerError(message);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const q = shipping.address1.trim();
+    if (q.length < 3 || !showAddressSuggestions) {
+      setAddressSuggestions([]);
+      setIsLoadingSuggestions(false);
+      return;
+    }
+
+    const seq = ++suggestSeq.current;
+    const timer = window.setTimeout(async () => {
+      setIsLoadingSuggestions(true);
+      try {
+        const country = shipping.country.trim().toUpperCase();
+        const res = await fetch(
+          `/api/shipping/address-suggest?q=${encodeURIComponent(q)}&country=${encodeURIComponent(country)}`
+        );
+        const data = await res.json();
+        if (suggestSeq.current !== seq) return;
+        if (!res.ok) throw new Error(data?.error ?? "Failed to fetch address suggestions");
+        const suggestions = Array.isArray(data?.suggestions) ? (data.suggestions as AddressSuggestion[]) : [];
+        setAddressSuggestions(suggestions);
+      } catch (error) {
+        if (suggestSeq.current !== seq) return;
+        setAddressSuggestions([]);
+        const message = error instanceof Error ? error.message : "Failed to fetch address suggestions";
+        setServerError(message);
+      } finally {
+        if (suggestSeq.current === seq) {
+          setIsLoadingSuggestions(false);
+        }
+      }
+    }, 250);
+
+    return () => window.clearTimeout(timer);
+  }, [shipping.address1, shipping.country, showAddressSuggestions]);
 
   useEffect(() => {
     if (items.length === 0) return;
@@ -188,6 +275,8 @@ export default function CheckoutConfirmPage() {
     }
     if (Object.keys(validationErrors).length > 0) {
       setLoadingIntent(false);
+      setQuotedShippingCents(0);
+      setQuotedTotalCents(0);
       return;
     }
 
@@ -213,8 +302,14 @@ export default function CheckoutConfirmPage() {
         if (requestSeq.current !== seq) return;
         setClientSecret(String(data.clientSecret));
         setLastIntentKey(intentKey);
+        const nextShipping = Number(data?.shippingCents ?? 0);
+        const nextTotal = Number(data?.amountTotalCents ?? 0);
+        setQuotedShippingCents(Number.isFinite(nextShipping) && nextShipping > 0 ? nextShipping : 0);
+        setQuotedTotalCents(Number.isFinite(nextTotal) && nextTotal > 0 ? nextTotal : 0);
       } catch (e: unknown) {
         if (requestSeq.current !== seq) return;
+        setQuotedShippingCents(0);
+        setQuotedTotalCents(0);
         setServerError(e instanceof Error ? e.message : "Failed to initialize payment");
       } finally {
         if (requestSeq.current === seq) {
@@ -273,7 +368,38 @@ export default function CheckoutConfirmPage() {
                     { label: "New Zealand", value: "NZ" },
                   ]}
                 />
-                <Field label="Address" value={shipping.address1} onChange={(v) => setField("address1", v)} error={errors.address1} wide />
+                <div className={`${styles.field} ${styles.wide}`}>
+                  <label className={styles.label}>Address</label>
+                  <input
+                    className={`${styles.input} ${errors.address1 ? styles.inputError : ""}`}
+                    value={shipping.address1}
+                    onChange={(e) => handleAddress1Change(e.target.value)}
+                    onFocus={() => setShowAddressSuggestions(true)}
+                    onBlur={() => window.setTimeout(() => setShowAddressSuggestions(false), 120)}
+                    autoComplete="off"
+                  />
+                  {showAddressSuggestions && (addressSuggestions.length > 0 || isLoadingSuggestions) ? (
+                    <div className={styles.suggestionList}>
+                      {isLoadingSuggestions ? (
+                        <button type="button" className={styles.suggestionItem} disabled>
+                          Searching addresses...
+                        </button>
+                      ) : null}
+                      {!isLoadingSuggestions &&
+                        addressSuggestions.map((s) => (
+                          <button
+                            key={s.placeId}
+                            type="button"
+                            className={styles.suggestionItem}
+                            onMouseDown={() => void applyPlaceSuggestion(s.placeId)}
+                          >
+                            {s.text}
+                          </button>
+                        ))}
+                    </div>
+                  ) : null}
+                  {errors.address1 ? <span className={styles.error}>{errors.address1}</span> : null}
+                </div>
                 <Field label="Apt / Unit (optional)" value={shipping.address2} onChange={(v) => setField("address2", v)} wide />
                 <Field label="City" value={shipping.city} onChange={(v) => setField("city", v)} error={errors.city} />
                 <Field label={shipping.country === "CA" ? "Province" : "State/Region"} value={shipping.province} onChange={(v) => setField("province", v)} error={errors.province} />

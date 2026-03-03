@@ -5,6 +5,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 export type CartItem = {
   id: string;
   slug: string;
+  shippingProfileKey?: string;
   title: string;
   unitPriceCents: number;
   coasterSetSize?: number;

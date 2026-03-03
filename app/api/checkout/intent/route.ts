@@ -7,6 +7,7 @@ import {
   normalizeItemPriceCents,
   SHIPPING_CENTS_BY_COUNTRY,
 } from "@/app/lib/checkoutPricing";
+import { getLowestStallionRate } from "@/app/lib/stallion";
 
 export const runtime = "nodejs";
 
@@ -16,6 +17,7 @@ type CartItem = {
   priceInCents: number;
   coasterSetSize?: number;
   slug?: string;
+  shippingProfileKey?: string;
   uploadedImageUrl?: string;
   imageUrl?: string;
   uploadedFileName?: string;
@@ -57,8 +59,8 @@ export async function POST(req: Request) {
     }
 
     const shippingCountry = normalizeCountry(shipping.country);
-    const shippingCents = SHIPPING_CENTS_BY_COUNTRY[shippingCountry];
-    if (!shippingCents) {
+    const fallbackShippingCents = SHIPPING_CENTS_BY_COUNTRY[shippingCountry];
+    if (!fallbackShippingCents) {
       return NextResponse.json(
         { error: "Shipping country must be Canada, United Kingdom, United States, or New Zealand." },
         { status: 400 }
@@ -79,8 +81,37 @@ export async function POST(req: Request) {
         coasterSetSize: i.coasterSetSize,
       }),
     }));
-
     const subtotalCents = items.reduce((sum, i) => sum + i.priceInCents * i.quantity, 0);
+
+    let shippingCents = fallbackShippingCents;
+    try {
+      const quote = await getLowestStallionRate({
+        shipping: {
+          fullName: shipping.fullName,
+          email: shipping.email,
+          phone: shipping.phone,
+          address1: shipping.address1,
+          address2: shipping.address2,
+          city: shipping.city,
+          province: shipping.province,
+          postalCode: shipping.postalCode,
+          country: shippingCountry,
+        },
+        items: items.map((item) => ({
+          name: item.name,
+          slug: item.slug,
+          shippingProfileKey: item.shippingProfileKey,
+          quantity: item.quantity,
+          coasterSetSize: item.coasterSetSize,
+          unitPriceCents: item.priceInCents,
+        })),
+        declaredValueCents: subtotalCents,
+      });
+      shippingCents = quote.shippingCents;
+    } catch (error) {
+      console.error("Stallion rates unavailable. Falling back to flat shipping.", error);
+    }
+
     const amountTotalCents = subtotalCents + shippingCents;
     if (!Number.isFinite(amountTotalCents) || amountTotalCents <= 0) {
       return NextResponse.json({ error: "Invalid order amount." }, { status: 400 });
@@ -121,6 +152,7 @@ export async function POST(req: Request) {
       amountTotalCents,
       items: items.map((i) => ({
         slug: i.slug ?? "",
+        shippingProfileKey: i.shippingProfileKey ?? "",
         name: i.name,
         quantity: i.quantity,
         priceInCents: i.priceInCents,

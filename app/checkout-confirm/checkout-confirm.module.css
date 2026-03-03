@@ -42,6 +42,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  position: relative;
 }
 
 .wide {
@@ -70,6 +71,46 @@
 .error {
   color: rgba(255, 120, 120, 0.95);
   font-size: 0.82rem;
+}
+
+.suggestionList {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  max-height: 220px;
+  overflow-y: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #101010;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+}
+
+.suggestionItem {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  text-align: left;
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.suggestionItem:last-child {
+  border-bottom: 0;
+}
+
+.suggestionItem:hover {
+  background: rgba(212, 140, 58, 0.18);
+}
+
+.suggestionItem:disabled {
+  cursor: default;
+  opacity: 0.8;
 }
 
 .serverError {

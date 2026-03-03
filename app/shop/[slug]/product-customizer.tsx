@@ -24,6 +24,7 @@ const COASTER_SET_OPTIONS = [
 
 type Product = {
   slug: string;
+  shippingProfileKey?: string;
   title: string;
   image: string;
   priceCents: number;
@@ -88,6 +89,7 @@ export default function ProductCustomizer({
       addItem({
         id: `${product.slug}-${crypto.randomUUID()}`,
         slug: product.slug,
+        shippingProfileKey: product.shippingProfileKey ?? product.slug,
         title: product.title,
         unitPriceCents,
         coasterSetSize: product.slug === "wooden-coasters" ? selectedSet.value : undefined,

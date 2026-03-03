@@ -1,5 +1,6 @@
 export type Product = {
   slug: string;
+  shippingProfileKey?: string;
   title: string;
   description: string;
   image: string;
