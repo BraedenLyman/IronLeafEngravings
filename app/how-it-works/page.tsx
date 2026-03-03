@@ -69,6 +69,7 @@ export default function HowItWorksPage() {
               </Link>
             </div>
           </Card>
+          
         </div>
       </section>
       < Footer />
