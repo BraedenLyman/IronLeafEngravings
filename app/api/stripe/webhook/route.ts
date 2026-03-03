@@ -69,7 +69,9 @@ type PendingCheckout = {
   imageUrl?: string;
   uploadedImageUrl?: string;
   shipping?: StoredShipping;
+  subtotalCents?: number;
   shippingCents?: number;
+  amountTotalCents?: number;
   items?: PendingItem[];
 };
 
@@ -201,7 +203,15 @@ async function handleCheckoutSessionCompleted(stripe: Stripe, sessionFromEvent: 
     shipping: shippingToStore,
   });
 
-  await markPendingCompleted(pendingOrderId, { stripeSessionId: session.id });
+  const checkoutSessionShippingAmount =
+    typeof session.total_details?.amount_shipping === "number" && session.total_details.amount_shipping >= 0
+      ? session.total_details.amount_shipping
+      : Number(pendingData?.shippingCents ?? 0) || null;
+  await markPendingCompleted(pendingOrderId, {
+    stripeSessionId: session.id,
+    chargedShippingCents: checkoutSessionShippingAmount,
+    chargedAmountTotalCents: session.amount_total ?? null,
+  });
 
   const customerEmail = customerDetails?.email ?? pendingShipping?.email ?? pendingData?.shipping?.email ?? "";
   let lineItemsForEmail: Stripe.ApiList<Stripe.LineItem> | null = null;
@@ -214,7 +224,7 @@ async function handleCheckoutSessionCompleted(stripe: Stripe, sessionFromEvent: 
         createdAt: new Date((session.created ?? Math.floor(Date.now() / 1000)) * 1000),
         currency: session.currency ?? "cad",
         amountTotal: session.amount_total ?? null,
-        shippingAmount: session.total_details?.amount_shipping ?? pendingData?.shippingCents ?? null,
+        shippingAmount: checkoutSessionShippingAmount,
         items: lineItemsForEmail.data.map((item) => ({
           name: item.description ?? "Item",
           quantity: item.quantity ?? 1,
@@ -359,11 +369,27 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       phone: customerPhone ?? "",
     },
     shipping: shippingToStore,
+    subtotalCents: pendingData?.subtotalCents ?? null,
+    shippingCents: pendingData?.shippingCents ?? null,
   });
 
-  await markPendingCompleted(pendingOrderId, { stripePaymentIntentId: paymentIntent.id });
-
   const notifyItems = mapPendingItemsForEmail(pendingData?.items ?? []);
+  const chargedTotal = Number(paymentIntent.amount_received || paymentIntent.amount || 0);
+  const pendingSubtotal = Number(pendingData?.subtotalCents ?? 0);
+  const pendingShippingCents = Number(pendingData?.shippingCents ?? 0);
+  const derivedShippingFromCharge = chargedTotal - pendingSubtotal;
+  const finalShippingAmount =
+    Number.isFinite(derivedShippingFromCharge) && derivedShippingFromCharge >= 0
+      ? derivedShippingFromCharge
+      : pendingShippingCents > 0
+        ? pendingShippingCents
+        : null;
+
+  await markPendingCompleted(pendingOrderId, {
+    stripePaymentIntentId: paymentIntent.id,
+    chargedShippingCents: finalShippingAmount,
+    chargedAmountTotalCents: chargedTotal || null,
+  });
   if (customerEmail) {
     try {
       await sendOrderReceiptEmail({
@@ -372,7 +398,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
         createdAt: new Date((paymentIntent.created ?? Math.floor(Date.now() / 1000)) * 1000),
         currency: paymentIntent.currency ?? "cad",
         amountTotal: paymentIntent.amount_received || paymentIntent.amount || null,
-        shippingAmount: pendingData?.shippingCents ?? null,
+        shippingAmount: finalShippingAmount,
         items: notifyItems,
         shipping: shippingToStore,
       });
