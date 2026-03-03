@@ -74,3 +74,19 @@ env:
   - variable: CONTACT_TO_EMAIL
     secret: CONTACT_TO_EMAIL
     availability: [BUILD, RUNTIME]
+
+  - variable: GOOGLE_PLACES_API_KEY
+    secret: GOOGLE_PLACES_API_KEY
+    availability: [ BUILD, RUNTIME ]
+
+  - variable: STALLION_API_TOKEN
+    secret: STALLION_API_TOKEN
+    availability: [ BUILD, RUNTIME ]
+
+  - variable: STALLION_HS_CODE_DEFAULT
+    secret: STALLION_HS_CODE_DEFAULT
+    availability: [ BUILD, RUNTIME ]
+
+  - variable: STALLION_ORIGIN_DEFAULT
+    value: "CA"
+    availability: [ BUILD, RUNTIME ]
